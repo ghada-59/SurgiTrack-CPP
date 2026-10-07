@@ -1,0 +1,11 @@
+build/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+CTestTestfile.cmake
+Makefile
+*.exe
+*.dll
+*.so
+*.dylib
+.vscode/
