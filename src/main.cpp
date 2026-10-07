@@ -1,50 +1,82 @@
+#include <iomanip>
 #include <iostream>
 #include <vector>
-#include <iomanip>
+
 #include "surgitrack/CoordinateTransform.hpp"
 #include "surgitrack/SafetyGeofence.hpp"
 
 using namespace surgitrack;
 
+namespace {
+
+const char* toString(SafetyStatus status) {
+    switch (status) {
+        case SafetyStatus::SAFE:
+            return "SAFE";
+        case SafetyStatus::WARNING_APPROACHING:
+            return "WARNING";
+        case SafetyStatus::CRITICAL_VIOLATION:
+            return "CRITICAL";
+    }
+    return "UNKNOWN";
+}
+
+} // namespace
+
 int main() {
-    std::cout << "========================================================\n";
-    std::cout << "   SurgiTrack-CPP: Medical Navigation & Safety Suite   \n";
-    std::cout << "   Sub-Millimeter Surgical Tracking Simulator           \n";
-    std::cout << "========================================================\n\n";
+    std::cout << "========================================================
+";
+    std::cout << "   SurgiTrack-CPP: 3D Medical Navigation Simulation    
+";
+    std::cout << "   Coordinate Transformation & Safety Geofencing       
+";
+    std::cout << "========================================================
 
-    // Define critical anatomical structures
-    SafetyGeofence geofence(3.0); // 3 mm warning buffer
-    geofence.addCriticalStructure("Femoral Artery", Eigen::Vector3d(50.0, 100.0, 10.0), 5.0);
-    geofence.addCriticalStructure("Sciatic Nerve", Eigen::Vector3d(20.0, 80.0, -15.0), 4.0);
+";
 
-    // Frame transformation: Tracking Camera -> Patient Space
-    CoordinateTransform cameraToPatient = CoordinateTransform::combine(
-        CoordinateTransform::createTranslation(10.0, 20.0, 5.0),
-        CoordinateTransform::createRotationZ(0.1)
-    );
+    SafetyGeofence geofence(3.0);
+    geofence.addCriticalStructure(
+        "Femoral Artery", Eigen::Vector3d(50.0, 100.0, 10.0), 5.0);
+    geofence.addCriticalStructure(
+        "Sciatic Nerve", Eigen::Vector3d(20.0, 80.0, -15.0), 4.0);
 
-    // Simulated optical tracking trajectory (Camera Space coordinates in mm)
-    std::vector<Eigen::Vector3d> camera_positions = {
-        Eigen::Vector3d(0.0, 0.0, 0.0),
-        Eigen::Vector3d(25.0, 50.0, 2.0),
-        Eigen::Vector3d(35.0, 75.0, 4.0),
-        Eigen::Vector3d(37.5, 77.0, 4.5) // Hazardous trajectory path
+    // Composition: rotation is applied first, then translation.
+    const auto cameraToPatient =
+        CoordinateTransform::createTranslation(10.0, 20.0, 5.0)
+            .combine(CoordinateTransform::createRotationZ(0.1));
+
+    const std::vector<Eigen::Vector3d> camera_positions = {
+        {0.0, 0.0, 0.0},
+        {25.0, 50.0, 2.0},
+        {35.0, 75.0, 4.0},
+        {37.5, 77.0, 4.5}
     };
 
     std::cout << std::fixed << std::setprecision(2);
 
-    for (size_t i = 0; i < camera_positions.size(); ++i) {
-        Eigen::Vector3d pt_patient = cameraToPatient.transformPoint(camera_positions[i]);
-        std::string alert;
-        SecurityStatus status = geofence.evaluatePosition(pt_patient, alert);
+    for (std::size_t i = 0; i < camera_positions.size(); ++i) {
+        const Eigen::Vector3d patient_position =
+            cameraToPatient.transformPoint(camera_positions[i]);
 
-        std::cout << "[Step " << i + 1 << "] Cam: (" 
-                  << camera_positions[i].x() << ", " << camera_positions[i].y() << ", " << camera_positions[i].z() << ") mm"
-                  << " -> Patient: (" 
-                  << pt_patient.x() << ", " << pt_patient.y() << ", " << pt_patient.z() << ") mm\n";
-        
-        std::cout << "         " << alert << "\n";
-        std::cout << "--------------------------------------------------------\n";
+        std::string alert;
+        const SafetyStatus status =
+            geofence.evaluatePosition(patient_position, alert);
+
+        std::cout << "[Step " << i + 1 << "] "
+                  << "Camera: (" << camera_positions[i].x() << ", "
+                  << camera_positions[i].y() << ", "
+                  << camera_positions[i].z() << ") mm"
+                  << " -> Patient: (" << patient_position.x() << ", "
+                  << patient_position.y() << ", "
+                  << patient_position.z() << ") mm
+";
+
+        std::cout << "         Status: " << toString(status) << "
+";
+        std::cout << "         " << alert << "
+";
+        std::cout << "--------------------------------------------------------
+";
     }
 
     return 0;
