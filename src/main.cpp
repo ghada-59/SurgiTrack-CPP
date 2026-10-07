@@ -48,8 +48,9 @@ int main() {
     const std::vector<Eigen::Vector3d> camera_positions = {
         {0.0, 0.0, 0.0},
         {25.0, 50.0, 2.0},
-        {35.0, 75.0, 4.0},
-        {37.5, 77.0, 4.5}
+        {40.0, 75.0, 4.5},
+        {44.0, 75.0, 4.5},
+        {48.0, 75.0, 5.0}
     };
 
     std::cout << std::fixed << std::setprecision(2);
