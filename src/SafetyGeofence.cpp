@@ -1,34 +1,60 @@
 #include "surgitrack/SafetyGeofence.hpp"
+
+#include <limits>
 #include <sstream>
+#include <stdexcept>
 
 namespace surgitrack {
 
-SafetyGeofence::SafetyGeofence(double warning_buffer_mm) 
-    : warning_buffer_mm_(warning_buffer_mm) {}
+SafetyGeofence::SafetyGeofence(double warning_buffer_mm)
+    : warning_buffer_mm_(warning_buffer_mm) {
+    if (warning_buffer_mm < 0.0) {
+        throw std::invalid_argument("Warning buffer cannot be negative.");
+    }
+}
 
-void SafetyGeofence::addCriticalStructure(const std::string& name, const Eigen::Vector3d& center, double radius_mm) {
+void SafetyGeofence::addCriticalStructure(
+    const std::string& name,
+    const Eigen::Vector3d& center,
+    double radius_mm) {
+    if (name.empty()) {
+        throw std::invalid_argument("Critical structure name cannot be empty.");
+    }
+    if (radius_mm < 0.0) {
+        throw std::invalid_argument("Safety radius cannot be negative.");
+    }
+
     structures_.push_back({name, center, radius_mm});
 }
 
-SecurityStatus SafetyGeofence::evaluatePosition(const Eigen::Vector3d& tool_position, std::string& out_alert_msg) const {
-    SecurityStatus worst_status = SecurityStatus::SAFE;
+SafetyStatus SafetyGeofence::evaluatePosition(
+    const Eigen::Vector3d& tool_position,
+    std::string& out_alert_msg) const {
+    SafetyStatus worst_status = SafetyStatus::SAFE;
+    double nearest_warning_distance = std::numeric_limits<double>::infinity();
+
     out_alert_msg = "SAFE: Tool within nominal workspace.";
 
-    for (const auto& s : structures_) {
-        double dist = (tool_position - s.center).norm();
-        
-        if (dist <= s.safety_radius_mm) {
-            std::ostringstream ss;
-            ss << "CRITICAL ALERT: Surgical tool inside no-fly zone '" 
-               << s.name << "' (Dist: " << dist << " mm <= Radius: " << s.safety_radius_mm << " mm)";
-            out_alert_msg = ss.str();
-            return SecurityStatus::CRITICAL_VIOLATION;
-        } else if (dist <= s.safety_radius_mm + warning_buffer_mm_) {
-            std::ostringstream ss;
-            ss << "WARNING: Immediate proximity to critical structure '" 
-               << s.name << "' (Dist: " << dist << " mm)";
-            out_alert_msg = ss.str();
-            worst_status = SecurityStatus::WARNING_APPROACHING;
+    for (const auto& structure : structures_) {
+        const double distance = (tool_position - structure.center).norm();
+
+        if (distance <= structure.safety_radius_mm) {
+            std::ostringstream message;
+            message << "CRITICAL ALERT: Tool entered protected zone '"
+                    << structure.name << "' (distance: " << distance
+                    << " mm, radius: " << structure.safety_radius_mm << " mm).";
+            out_alert_msg = message.str();
+            return SafetyStatus::CRITICAL_VIOLATION;
+        }
+
+        if (distance <= structure.safety_radius_mm + warning_buffer_mm_
+            && distance < nearest_warning_distance) {
+            std::ostringstream message;
+            message << "WARNING: Tool is approaching protected structure '"
+                    << structure.name << "' (distance: " << distance << " mm).";
+            out_alert_msg = message.str();
+            nearest_warning_distance = distance;
+            worst_status = SafetyStatus::WARNING_APPROACHING;
         }
     }
 
