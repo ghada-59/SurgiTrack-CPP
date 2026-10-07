@@ -9,6 +9,10 @@
 
 using namespace surgitrack;
 
+namespace {
+constexpr double kPi = 3.14159265358979323846;
+}
+
 TEST(CoordinateTransformTest, DefaultIsIdentity) {
     const CoordinateTransform transform;
     const Eigen::Vector3d point(1.0, -2.0, 3.5);
@@ -30,7 +34,7 @@ TEST(CoordinateTransformTest, TranslationPrecision) {
 
 TEST(CoordinateTransformTest, RotationZ90Degrees) {
     const auto transform =
-        CoordinateTransform::createRotationZ(M_PI / 2.0);
+        CoordinateTransform::createRotationZ(kPi / 2.0);
 
     const Eigen::Vector3d result =
         transform.transformPoint(Eigen::Vector3d(1.0, 0.0, 0.0));
@@ -42,7 +46,7 @@ TEST(CoordinateTransformTest, RotationZ90Degrees) {
 
 TEST(CoordinateTransformTest, RotationX90Degrees) {
     const auto transform =
-        CoordinateTransform::createRotationX(M_PI / 2.0);
+        CoordinateTransform::createRotationX(kPi / 2.0);
 
     const Eigen::Vector3d result =
         transform.transformPoint(Eigen::Vector3d(0.0, 1.0, 0.0));
@@ -54,7 +58,7 @@ TEST(CoordinateTransformTest, RotationX90Degrees) {
 
 TEST(CoordinateTransformTest, RotationY90Degrees) {
     const auto transform =
-        CoordinateTransform::createRotationY(M_PI / 2.0);
+        CoordinateTransform::createRotationY(kPi / 2.0);
 
     const Eigen::Vector3d result =
         transform.transformPoint(Eigen::Vector3d(0.0, 0.0, 1.0));
@@ -68,7 +72,7 @@ TEST(CoordinateTransformTest, CompositionAppliesOtherFirst) {
     const auto translation =
         CoordinateTransform::createTranslation(10.0, 0.0, 0.0);
     const auto rotation =
-        CoordinateTransform::createRotationZ(M_PI / 2.0);
+        CoordinateTransform::createRotationZ(kPi / 2.0);
 
     const auto combined = translation.combine(rotation);
     const Eigen::Vector3d result =
