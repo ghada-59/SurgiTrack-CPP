@@ -6,7 +6,10 @@
 namespace surgitrack {
 
 /**
- * @brief Handles 3D rigid body transformations (Camera Space -> Patient Space -> Scanner Space)
+ * @brief Represents a 3D homogeneous transformation matrix.
+ *
+ * The class supports translations, rotations, point transformation,
+ * composition and inversion for a small medical-navigation simulation.
  */
 class CoordinateTransform {
 public:
@@ -19,7 +22,16 @@ public:
     static CoordinateTransform createRotationZ(double angle_rad);
 
     Eigen::Vector3d transformPoint(const Eigen::Vector3d& point) const;
+
+    /**
+     * @brief Compose this transform with another transform.
+     *
+     * The returned matrix is this->matrix() * other.matrix().
+     * When applied to a point, "other" is therefore applied first,
+     * followed by "this".
+     */
     CoordinateTransform combine(const CoordinateTransform& other) const;
+
     CoordinateTransform inverse() const;
 
     const Eigen::Matrix4d& getMatrix() const { return matrix_; }
