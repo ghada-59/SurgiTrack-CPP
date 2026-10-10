@@ -24,15 +24,10 @@ const char* toString(SafetyStatus status) {
 } // namespace
 
 int main() {
-    std::cout << "========================================================
-";
-    std::cout << "   SurgiTrack-CPP: 3D Medical Navigation Simulation    
-";
-    std::cout << "   Coordinate Transformation & Safety Geofencing       
-";
-    std::cout << "========================================================
-
-";
+    std::cout << "========================================================\n";
+    std::cout << "   SurgiTrack-CPP: 3D Medical Navigation Simulation    \n";
+    std::cout << "   Coordinate Transformation & Safety Geofencing       \n";
+    std::cout << "========================================================\n\n";
 
     SafetyGeofence geofence(3.0);
     geofence.addCriticalStructure(
@@ -69,15 +64,11 @@ int main() {
                   << camera_positions[i].z() << ") mm"
                   << " -> Patient: (" << patient_position.x() << ", "
                   << patient_position.y() << ", "
-                  << patient_position.z() << ") mm
-";
+                  << patient_position.z() << ") mm\n";
 
-        std::cout << "         Status: " << toString(status) << "
-";
-        std::cout << "         " << alert << "
-";
-        std::cout << "--------------------------------------------------------
-";
+        std::cout << "         Status: " << toString(status) << "\n";
+        std::cout << "         " << alert << "\n";
+        std::cout << "--------------------------------------------------------\n";
     }
 
     return 0;
