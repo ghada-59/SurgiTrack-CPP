@@ -45,7 +45,10 @@ int main() {
         {25.0, 50.0, 2.0},
         {40.0, 75.0, 4.5},
         {44.0, 75.0, 4.5},
-        {48.0, 75.0, 5.0}
+        {48.0, 75.0, 5.0},
+        // Deliberately reach the protected-zone center to demonstrate a critical alert.
+        cameraToPatient.inverse().transformPoint(
+            Eigen::Vector3d(50.0, 100.0, 10.0))
     };
 
     std::cout << std::fixed << std::setprecision(2);
