@@ -17,7 +17,7 @@ A portfolio-oriented C++17 project demonstrating 3D coordinate transformations a
 - Defensive parameter validation
 - Unit testing with GoogleTest
 - CMake-based project organization with compiler warning flags for project code
-- GitHub Actions continuous integration
+- GitHub Actions continuous integration on Linux and Windows
 
 ## Project structure
 
