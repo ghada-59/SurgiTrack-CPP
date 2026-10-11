@@ -1,4 +1,5 @@
 #include <cmath>
+#include <limits>
 #include <stdexcept>
 #include <string>
 
@@ -152,5 +153,37 @@ TEST(SafetyGeofenceTest, RejectsInvalidParameters) {
         std::invalid_argument);
     EXPECT_THROW(
         fence.addCriticalStructure("Artery", Eigen::Vector3d::Zero(), -1.0),
+        std::invalid_argument);
+}
+
+
+TEST(SafetyGeofenceTest, RejectsNonFiniteWarningBuffer) {
+    EXPECT_THROW(
+        SafetyGeofence(std::numeric_limits<double>::quiet_NaN()),
+        std::invalid_argument);
+    EXPECT_THROW(
+        SafetyGeofence(std::numeric_limits<double>::infinity()),
+        std::invalid_argument);
+}
+
+TEST(SafetyGeofenceTest, RejectsNonFiniteStructureParameters) {
+    SafetyGeofence fence;
+    const double nan = std::numeric_limits<double>::quiet_NaN();
+
+    EXPECT_THROW(
+        fence.addCriticalStructure("Artery", Eigen::Vector3d(nan, 0.0, 0.0), 5.0),
+        std::invalid_argument);
+    EXPECT_THROW(
+        fence.addCriticalStructure("Artery", Eigen::Vector3d::Zero(), nan),
+        std::invalid_argument);
+}
+
+TEST(SafetyGeofenceTest, RejectsNonFiniteToolPosition) {
+    SafetyGeofence fence;
+    std::string message;
+    const double nan = std::numeric_limits<double>::quiet_NaN();
+
+    EXPECT_THROW(
+        fence.evaluatePosition(Eigen::Vector3d(nan, 0.0, 0.0), message),
         std::invalid_argument);
 }
