@@ -216,6 +216,42 @@ TEST(SafetyGeofenceTest, RejectsNonFiniteStructureParameters) {
         std::invalid_argument);
 }
 
+TEST(SafetyGeofenceTest, HandlesExactSafetyBoundaries) {
+    SafetyGeofence fence(2.0);
+    fence.addCriticalStructure("Artery", Eigen::Vector3d::Zero(), 10.0);
+    std::string message;
+
+    EXPECT_EQ(
+        fence.evaluatePosition(Eigen::Vector3d(10.0, 0.0, 0.0), message),
+        SafetyStatus::CRITICAL_VIOLATION);
+    EXPECT_EQ(
+        fence.evaluatePosition(Eigen::Vector3d(12.0, 0.0, 0.0), message),
+        SafetyStatus::WARNING_APPROACHING);
+    EXPECT_EQ(
+        fence.evaluatePosition(Eigen::Vector3d(12.0001, 0.0, 0.0), message),
+        SafetyStatus::SAFE);
+}
+
+TEST(SafetyGeofenceTest, RejectsOverflowingRadiusAndWarningBuffer) {
+    const double max = std::numeric_limits<double>::max();
+    SafetyGeofence fence(max / 2.0);
+
+    EXPECT_THROW(
+        fence.addCriticalStructure("Artery", Eigen::Vector3d::Zero(), max),
+        std::invalid_argument);
+}
+
+TEST(SafetyGeofenceTest, RejectsOverflowingDistanceCalculation) {
+    SafetyGeofence fence;
+    fence.addCriticalStructure("Artery", Eigen::Vector3d::Zero(), 1.0);
+    std::string message;
+    const double max = std::numeric_limits<double>::max();
+
+    EXPECT_THROW(
+        fence.evaluatePosition(Eigen::Vector3d(max, max, max), message),
+        std::overflow_error);
+}
+
 TEST(SafetyGeofenceTest, RejectsNonFiniteToolPosition) {
     SafetyGeofence fence;
     std::string message;
