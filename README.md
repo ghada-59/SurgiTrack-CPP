@@ -16,7 +16,7 @@ A portfolio-oriented C++17 project demonstrating 3D coordinate transformations a
 - Explicit boundary behavior, warning selection by distance to the protected boundary, and guards against numeric overflow
 - Defensive parameter validation
 - Unit testing with GoogleTest
-- CMake-based project organization
+- CMake-based project organization with compiler warning flags for project code
 - GitHub Actions continuous integration
 
 ## Project structure
@@ -96,7 +96,7 @@ The test suite covers:
 - rotations around X, Y and Z
 - transform composition order
 - inverse round-trip and singular-matrix rejection
-- rejection of NaN/infinity inputs and malformed transformation matrices
+- rejection of NaN/infinity inputs, malformed matrices, and coordinate overflow
 - safe, warning and critical geofence states
 - exact safety-boundary behavior, warning-priority selection, and numeric-overflow rejection
 - critical-state precedence
