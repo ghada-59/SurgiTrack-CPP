@@ -13,6 +13,7 @@ A portfolio-oriented C++17 project demonstrating 3D coordinate transformations a
 - Validation of non-finite coordinates/angles and malformed homogeneous matrices
 - Rejection of singular transformation matrices during inversion
 - Distance-based safety geofencing around simplified critical structures
+- Explicit boundary behavior and guards against numeric overflow in distance calculations
 - Defensive parameter validation
 - Unit testing with GoogleTest
 - CMake-based project organization
@@ -97,6 +98,7 @@ The test suite covers:
 - inverse round-trip and singular-matrix rejection
 - rejection of NaN/infinity inputs and malformed transformation matrices
 - safe, warning and critical geofence states
+- exact safety-boundary behavior and numeric-overflow rejection
 - critical-state precedence
 - invalid safety parameters, including NaN and infinity
 - a demonstration trajectory that reaches a protected-zone center and emits a critical alert
