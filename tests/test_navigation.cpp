@@ -127,6 +127,15 @@ TEST(CoordinateTransformTest, RejectsNonFinitePoints) {
                  std::invalid_argument);
 }
 
+TEST(CoordinateTransformTest, RejectsOverflowingTransformedPoint) {
+    const double max = std::numeric_limits<double>::max();
+    const auto transform = CoordinateTransform::createTranslation(max, 0.0, 0.0);
+
+    EXPECT_THROW(
+        transform.transformPoint(Eigen::Vector3d(max, 0.0, 0.0)),
+        std::invalid_argument);
+}
+
 TEST(CoordinateTransformTest, RejectsSingularMatrixInverse) {
     Eigen::Matrix4d singular = Eigen::Matrix4d::Zero();
     singular(3, 3) = 1.0;
@@ -213,6 +222,11 @@ TEST(SafetyGeofenceTest, RejectsNonFiniteStructureParameters) {
         std::invalid_argument);
     EXPECT_THROW(
         fence.addCriticalStructure("Artery", Eigen::Vector3d::Zero(), nan),
+        std::invalid_argument);
+    EXPECT_THROW(
+        fence.addCriticalStructure(
+            "Artery", Eigen::Vector3d::Zero(),
+            std::numeric_limits<double>::infinity()),
         std::invalid_argument);
 }
 
