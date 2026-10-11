@@ -1,5 +1,6 @@
 #include "surgitrack/SafetyGeofence.hpp"
 
+#include <cmath>
 #include <limits>
 #include <sstream>
 #include <stdexcept>
@@ -8,8 +9,9 @@ namespace surgitrack {
 
 SafetyGeofence::SafetyGeofence(double warning_buffer_mm)
     : warning_buffer_mm_(warning_buffer_mm) {
-    if (warning_buffer_mm < 0.0) {
-        throw std::invalid_argument("Warning buffer cannot be negative.");
+    if (!std::isfinite(warning_buffer_mm) || warning_buffer_mm < 0.0) {
+        throw std::invalid_argument(
+            "Warning buffer must be finite and non-negative.");
     }
 }
 
@@ -20,8 +22,13 @@ void SafetyGeofence::addCriticalStructure(
     if (name.empty()) {
         throw std::invalid_argument("Critical structure name cannot be empty.");
     }
-    if (radius_mm < 0.0) {
-        throw std::invalid_argument("Safety radius cannot be negative.");
+    if (!center.allFinite()) {
+        throw std::invalid_argument(
+            "Critical structure center must contain only finite values.");
+    }
+    if (!std::isfinite(radius_mm) || radius_mm < 0.0) {
+        throw std::invalid_argument(
+            "Safety radius must be finite and non-negative.");
     }
 
     structures_.push_back({name, center, radius_mm});
@@ -30,6 +37,11 @@ void SafetyGeofence::addCriticalStructure(
 SafetyStatus SafetyGeofence::evaluatePosition(
     const Eigen::Vector3d& tool_position,
     std::string& out_alert_msg) const {
+    if (!tool_position.allFinite()) {
+        throw std::invalid_argument(
+            "Tool position must contain only finite values.");
+    }
+
     SafetyStatus worst_status = SafetyStatus::SAFE;
     double nearest_warning_distance = std::numeric_limits<double>::infinity();
 
