@@ -232,6 +232,19 @@ TEST(SafetyGeofenceTest, HandlesExactSafetyBoundaries) {
         SafetyStatus::SAFE);
 }
 
+TEST(SafetyGeofenceTest, ChoosesWarningClosestToProtectedBoundary) {
+    SafetyGeofence fence(5.0);
+    fence.addCriticalStructure("Large zone", Eigen::Vector3d::Zero(), 10.0);
+    fence.addCriticalStructure("Small zone", Eigen::Vector3d(16.0, 0.0, 0.0), 2.0);
+
+    std::string message;
+    const SafetyStatus status =
+        fence.evaluatePosition(Eigen::Vector3d(12.5, 0.0, 0.0), message);
+
+    EXPECT_EQ(status, SafetyStatus::WARNING_APPROACHING);
+    EXPECT_NE(message.find("Small zone"), std::string::npos);
+}
+
 TEST(SafetyGeofenceTest, RejectsOverflowingRadiusAndWarningBuffer) {
     const double max = std::numeric_limits<double>::max();
     SafetyGeofence fence(max / 2.0);
