@@ -95,7 +95,8 @@ The test suite covers:
 - inverse round-trip
 - safe, warning and critical geofence states
 - critical-state precedence
-- invalid safety parameters
+- invalid safety parameters, including NaN and infinity
+- a demonstration trajectory that reaches a protected-zone center and emits a critical alert
 
 ## Engineering notes and limitations
 
