@@ -8,6 +8,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 include(FetchContent)
 include(CTest)
 
+# Preserve this project's test setting, but disable dependency tests while
+# configuring Eigen so CTest only discovers SurgiTrack's own tests.
+set(SURGITRACK_BUILD_TESTING ${BUILD_TESTING})
+set(BUILD_TESTING OFF CACHE BOOL "Build tests" FORCE)
 set(EIGEN_BUILD_TESTING OFF CACHE BOOL "" FORCE)
 
 FetchContent_Declare(
@@ -17,6 +21,9 @@ FetchContent_Declare(
     GIT_SHALLOW TRUE
 )
 FetchContent_MakeAvailable(eigen)
+
+# Restore the test setting for SurgiTrack's own test suite.
+set(BUILD_TESTING ${SURGITRACK_BUILD_TESTING} CACHE BOOL "Build tests" FORCE)
 
 add_library(surgitrack
     src/CoordinateTransform.cpp
@@ -34,6 +41,8 @@ add_executable(SurgiTrackApp src/main.cpp)
 target_link_libraries(SurgiTrackApp PRIVATE surgitrack)
 
 if(BUILD_TESTING)
+    enable_testing()
+
     FetchContent_Declare(
         googletest
         GIT_REPOSITORY https://github.com/google/googletest.git
