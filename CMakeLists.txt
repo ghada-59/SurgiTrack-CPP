@@ -37,8 +37,21 @@ target_include_directories(surgitrack PUBLIC
 target_link_libraries(surgitrack PUBLIC Eigen3::Eigen)
 target_compile_features(surgitrack PUBLIC cxx_std_17)
 
+# Enable useful compiler diagnostics on project code without forcing warnings
+# on the third-party Eigen and GoogleTest targets.
+function(surgitrack_enable_warnings target)
+    if(MSVC)
+        target_compile_options(${target} PRIVATE /W4 /permissive-)
+    else()
+        target_compile_options(${target} PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+endfunction()
+
+surgitrack_enable_warnings(surgitrack)
+
 add_executable(SurgiTrackApp src/main.cpp)
 target_link_libraries(SurgiTrackApp PRIVATE surgitrack)
+surgitrack_enable_warnings(SurgiTrackApp)
 
 if(BUILD_TESTING)
     enable_testing()
@@ -53,6 +66,7 @@ if(BUILD_TESTING)
 
     add_executable(SurgiTrackTests tests/test_navigation.cpp)
     target_link_libraries(SurgiTrackTests PRIVATE surgitrack GTest::gtest_main)
+    surgitrack_enable_warnings(SurgiTrackTests)
 
     include(GoogleTest)
     gtest_discover_tests(SurgiTrackTests)
