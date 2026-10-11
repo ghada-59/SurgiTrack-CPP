@@ -64,13 +64,13 @@ The safety logic uses three states:
 
 ```bash
 cmake -S . -B build
-cmake --build build
+cmake --build build --config Release --parallel
 ```
 
 ### Run tests
 
 ```bash
-ctest --test-dir build --output-on-failure
+ctest --test-dir build --output-on-failure -C Release
 ```
 
 ### Run the simulator
