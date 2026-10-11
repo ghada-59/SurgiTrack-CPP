@@ -10,6 +10,8 @@ A portfolio-oriented C++17 project demonstrating 3D coordinate transformations a
 - 3D homogeneous-coordinate transformations with Eigen
 - Translation and X/Y/Z rotations
 - Transformation composition and inversion
+- Validation of non-finite coordinates/angles and malformed homogeneous matrices
+- Rejection of singular transformation matrices during inversion
 - Distance-based safety geofencing around simplified critical structures
 - Defensive parameter validation
 - Unit testing with GoogleTest
@@ -92,7 +94,8 @@ The test suite covers:
 - translation
 - rotations around X, Y and Z
 - transform composition order
-- inverse round-trip
+- inverse round-trip and singular-matrix rejection
+- rejection of NaN/infinity inputs and malformed transformation matrices
 - safe, warning and critical geofence states
 - critical-state precedence
 - invalid safety parameters, including NaN and infinity
