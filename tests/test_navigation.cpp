@@ -205,11 +205,14 @@ TEST(SafetyGeofenceTest, RejectsInvalidParameters) {
 
 
 TEST(SafetyGeofenceTest, RejectsNonFiniteWarningBuffer) {
+    const double nan = std::numeric_limits<double>::quiet_NaN();
+    const double inf = std::numeric_limits<double>::infinity();
+
     EXPECT_THROW(
-        SafetyGeofence(std::numeric_limits<double>::quiet_NaN()),
+        static_cast<void>(SafetyGeofence(nan)),
         std::invalid_argument);
     EXPECT_THROW(
-        SafetyGeofence(std::numeric_limits<double>::infinity()),
+        static_cast<void>(SafetyGeofence(inf)),
         std::invalid_argument);
 }
 
