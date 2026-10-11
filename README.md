@@ -84,7 +84,7 @@ On Linux/macOS:
 On Windows with a Visual Studio generator:
 
 ```text
-build\\Debug\\SurgiTrackApp.exe
+build\\Release\\SurgiTrackApp.exe
 ```
 
 ## Testing
