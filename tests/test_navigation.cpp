@@ -113,11 +113,11 @@ TEST(CoordinateTransformTest, RejectsNonFiniteFactoryInputs) {
 TEST(CoordinateTransformTest, RejectsInvalidHomogeneousMatrices) {
     Eigen::Matrix4d non_finite = Eigen::Matrix4d::Identity();
     non_finite(0, 0) = std::numeric_limits<double>::quiet_NaN();
-    EXPECT_THROW(CoordinateTransform(non_finite), std::invalid_argument);
+    EXPECT_THROW(static_cast<void>(CoordinateTransform(non_finite)), std::invalid_argument);
 
     Eigen::Matrix4d invalid_bottom_row = Eigen::Matrix4d::Identity();
     invalid_bottom_row(3, 0) = 1.0;
-    EXPECT_THROW(CoordinateTransform(invalid_bottom_row), std::invalid_argument);
+    EXPECT_THROW(static_cast<void>(CoordinateTransform(invalid_bottom_row)), std::invalid_argument);
 }
 
 TEST(CoordinateTransformTest, RejectsNonFinitePoints) {
