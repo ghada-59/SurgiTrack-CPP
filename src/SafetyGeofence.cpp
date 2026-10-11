@@ -30,6 +30,10 @@ void SafetyGeofence::addCriticalStructure(
         throw std::invalid_argument(
             "Safety radius must be finite and non-negative.");
     }
+    if (!std::isfinite(radius_mm + warning_buffer_mm_)) {
+        throw std::invalid_argument(
+            "Safety radius plus warning buffer must remain finite.");
+    }
 
     structures_.push_back({name, center, radius_mm});
 }
@@ -45,10 +49,20 @@ SafetyStatus SafetyGeofence::evaluatePosition(
     SafetyStatus worst_status = SafetyStatus::SAFE;
     double nearest_warning_distance = std::numeric_limits<double>::infinity();
 
-    out_alert_msg = "SAFE: Tool within nominal workspace.";
+    out_alert_msg = "SAFE: Tool outside all protected zones.";
 
     for (const auto& structure : structures_) {
-        const double distance = (tool_position - structure.center).norm();
+        const Eigen::Vector3d difference = tool_position - structure.center;
+        if (!difference.allFinite()) {
+            throw std::overflow_error(
+                "Distance calculation overflowed for the supplied coordinates.");
+        }
+
+        const double distance = difference.stableNorm();
+        if (!std::isfinite(distance)) {
+            throw std::overflow_error(
+                "Distance calculation produced a non-finite result.");
+        }
 
         if (distance <= structure.safety_radius_mm) {
             std::ostringstream message;
@@ -59,7 +73,9 @@ SafetyStatus SafetyGeofence::evaluatePosition(
             return SafetyStatus::CRITICAL_VIOLATION;
         }
 
-        if (distance <= structure.safety_radius_mm + warning_buffer_mm_
+        const double warning_distance =
+            structure.safety_radius_mm + warning_buffer_mm_;
+        if (distance <= warning_distance
             && distance < nearest_warning_distance) {
             std::ostringstream message;
             message << "WARNING: Tool is approaching protected structure '"
