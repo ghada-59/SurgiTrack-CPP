@@ -96,6 +96,44 @@ TEST(CoordinateTransformTest, InverseRestoresPoint) {
         transform.inverse().transformPoint(transformed).isApprox(original, 1e-9));
 }
 
+TEST(CoordinateTransformTest, RejectsNonFiniteFactoryInputs) {
+    const double nan = std::numeric_limits<double>::quiet_NaN();
+    const double inf = std::numeric_limits<double>::infinity();
+
+    EXPECT_THROW(CoordinateTransform::createTranslation(inf, 0.0, 0.0),
+                 std::invalid_argument);
+    EXPECT_THROW(CoordinateTransform::createRotationX(nan),
+                 std::invalid_argument);
+    EXPECT_THROW(CoordinateTransform::createRotationY(inf),
+                 std::invalid_argument);
+    EXPECT_THROW(CoordinateTransform::createRotationZ(nan),
+                 std::invalid_argument);
+}
+
+TEST(CoordinateTransformTest, RejectsInvalidHomogeneousMatrices) {
+    Eigen::Matrix4d non_finite = Eigen::Matrix4d::Identity();
+    non_finite(0, 0) = std::numeric_limits<double>::quiet_NaN();
+    EXPECT_THROW(CoordinateTransform(non_finite), std::invalid_argument);
+
+    Eigen::Matrix4d invalid_bottom_row = Eigen::Matrix4d::Identity();
+    invalid_bottom_row(3, 0) = 1.0;
+    EXPECT_THROW(CoordinateTransform(invalid_bottom_row), std::invalid_argument);
+}
+
+TEST(CoordinateTransformTest, RejectsNonFinitePoints) {
+    const double inf = std::numeric_limits<double>::infinity();
+    const CoordinateTransform transform;
+    EXPECT_THROW(transform.transformPoint(Eigen::Vector3d(0.0, inf, 1.0)),
+                 std::invalid_argument);
+}
+
+TEST(CoordinateTransformTest, RejectsSingularMatrixInverse) {
+    Eigen::Matrix4d singular = Eigen::Matrix4d::Zero();
+    singular(3, 3) = 1.0;
+    const CoordinateTransform transform(singular);
+    EXPECT_THROW(transform.inverse(), std::invalid_argument);
+}
+
 TEST(SafetyGeofenceTest, SafePosition) {
     SafetyGeofence fence(2.0);
     fence.addCriticalStructure("Artery", Eigen::Vector3d::Zero(), 10.0);
