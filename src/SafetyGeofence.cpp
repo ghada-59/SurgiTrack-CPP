@@ -47,7 +47,7 @@ SafetyStatus SafetyGeofence::evaluatePosition(
     }
 
     SafetyStatus worst_status = SafetyStatus::SAFE;
-    double nearest_warning_distance = std::numeric_limits<double>::infinity();
+    double nearest_warning_clearance = std::numeric_limits<double>::infinity();
 
     out_alert_msg = "SAFE: Tool outside all protected zones.";
 
@@ -75,13 +75,14 @@ SafetyStatus SafetyGeofence::evaluatePosition(
 
         const double warning_distance =
             structure.safety_radius_mm + warning_buffer_mm_;
+        const double clearance = distance - structure.safety_radius_mm;
         if (distance <= warning_distance
-            && distance < nearest_warning_distance) {
+            && clearance < nearest_warning_clearance) {
             std::ostringstream message;
             message << "WARNING: Tool is approaching protected structure '"
                     << structure.name << "' (distance: " << distance << " mm).";
             out_alert_msg = message.str();
-            nearest_warning_distance = distance;
+            nearest_warning_clearance = clearance;
             worst_status = SafetyStatus::WARNING_APPROACHING;
         }
     }
