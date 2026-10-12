@@ -1,6 +1,7 @@
 #include "surgitrack/SafetyGeofence.hpp"
 
 #include <cmath>
+#include <iomanip>
 #include <limits>
 #include <sstream>
 #include <stdexcept>
@@ -64,10 +65,13 @@ SafetyStatus SafetyGeofence::evaluatePosition(
                 "Distance calculation produced a non-finite result.");
         }
 
+        const double display_distance = distance < 1e-9 ? 0.0 : distance;
+
         if (distance <= structure.safety_radius_mm) {
             std::ostringstream message;
-            message << "CRITICAL ALERT: Tool entered protected zone '"
-                    << structure.name << "' (distance: " << distance
+            message << std::fixed << std::setprecision(2)
+                    << "CRITICAL ALERT: Tool entered protected zone '"
+                    << structure.name << "' (distance: " << display_distance
                     << " mm, radius: " << structure.safety_radius_mm << " mm).";
             out_alert_msg = message.str();
             return SafetyStatus::CRITICAL_VIOLATION;
@@ -79,8 +83,9 @@ SafetyStatus SafetyGeofence::evaluatePosition(
         if (distance <= warning_distance
             && clearance < nearest_warning_clearance) {
             std::ostringstream message;
-            message << "WARNING: Tool is approaching protected structure '"
-                    << structure.name << "' (distance: " << distance << " mm).";
+            message << std::fixed << std::setprecision(2)
+                    << "WARNING: Tool is approaching protected structure '"
+                    << structure.name << "' (distance: " << display_distance << " mm).";
             out_alert_msg = message.str();
             nearest_warning_clearance = clearance;
             worst_status = SafetyStatus::WARNING_APPROACHING;
