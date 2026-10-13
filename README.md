@@ -103,6 +103,25 @@ The test suite covers:
 - invalid safety parameters, including NaN and infinity
 - a demonstration trajectory that reaches a protected-zone center and emits a critical alert
 
+## Simulation Results
+
+The simulation generates a fixed 3D trajectory and evaluates each position against a simplified spherical protected zone. The following figures summarize the simulated trajectory and safety-state progression.
+
+### 3D Trajectory
+
+![Simulated 3D trajectory](reports/trajectory_3d.png)
+
+### Safety Status Progression
+
+![Safety status progression](reports/safety_status.png)
+
+### Simulation Output
+
+The full console output is available in [`reports/simulation_output.txt`](reports/simulation_output.txt).
+
+The simulation demonstrates transitions from `SAFE` to `WARNING_APPROACHING` and `CRITICAL_VIOLATION`. These results illustrate the implemented geometric rules only; they do not represent clinical measurements or validated surgical safety performance.
+
+
 ## Engineering notes and limitations
 
 This project intentionally keeps the model small and understandable. It does **not** implement:
