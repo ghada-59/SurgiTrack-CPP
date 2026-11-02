@@ -14,7 +14,7 @@ npm run dev
 
 Open the local URL printed by Vite, normally http://127.0.0.1:5173/.
 
-No backend is required for this visual companion. It computes an illustrative straight-line trajectory, Euclidean distance to a spherical protected zone, and SAFE / WARNING / CRITICAL states in the browser. Parameters can be adjusted and the sampled path exported as CSV.
+No backend is required. The safety view computes an illustrative straight-line trajectory in the browser. The registration pages (`#/overview`, `#/registration`, `#/monte-carlo`, `#/geometry`, `#/tests`, `#/about`) read the C++ exports in `../results` (`results.json`, `points.json`, `mc.csv`, and `ctest_release.txt`). They do not invent metrics: a missing value is shown as —.
 
 ## Important scope
 
