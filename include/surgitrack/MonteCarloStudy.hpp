@@ -22,6 +22,7 @@ struct MonteCarloTargetSummary {
     double median_tre_mm = 0.0;
     double rms_tre_mm = 0.0;
     double mean_tre2_mm2 = 0.0;
+    double p5_tre_mm = 0.0;
     double p50_tre_mm = 0.0;
     double p95_tre_mm = 0.0;
     double p99_tre_mm = 0.0;
@@ -34,6 +35,7 @@ struct MonteCarloFreSummary {
     double median_mm = 0.0;
     double rms_mm = 0.0;
     double mean_squared_mm2 = 0.0;
+    double p5_mm = 0.0;
     double p50_mm = 0.0;
     double p95_mm = 0.0;
     double p99_mm = 0.0;

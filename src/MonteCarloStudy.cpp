@@ -120,6 +120,7 @@ struct DistributionSummary {
     double mean = 0.0;
     double mean_of_squares = 0.0;
     double rms = 0.0;
+    double p5 = 0.0;
     double p50 = 0.0;
     double p95 = 0.0;
     double p99 = 0.0;
@@ -139,6 +140,7 @@ DistributionSummary summarize(const std::vector<double>& samples) {
         [](double total, double value) { return total + value * value; });
     summary.mean_of_squares = sum_of_squares / count;
     summary.rms = std::sqrt(summary.mean_of_squares);
+    summary.p5 = linearPercentile(samples, 0.05);
     summary.p50 = linearPercentile(samples, 0.50);
     summary.p95 = linearPercentile(samples, 0.95);
     summary.p99 = linearPercentile(samples, 0.99);
@@ -297,6 +299,7 @@ MonteCarloStudy runMonteCarloStudy(const MonteCarloOptions& options) {
             configuration.fre.median_mm = fre.p50;
             configuration.fre.rms_mm = fre.rms;
             configuration.fre.mean_squared_mm2 = fre.mean_of_squares;
+            configuration.fre.p5_mm = fre.p5;
             configuration.fre.p50_mm = fre.p50;
             configuration.fre.p95_mm = fre.p95;
             configuration.fre.p99_mm = fre.p99;
@@ -321,6 +324,7 @@ MonteCarloStudy runMonteCarloStudy(const MonteCarloOptions& options) {
                 target.median_tre_mm = tre.p50;
                 target.rms_tre_mm = tre.rms;
                 target.mean_tre2_mm2 = tre.mean_of_squares;
+                target.p5_tre_mm = tre.p5;
                 target.p50_tre_mm = tre.p50;
                 target.p95_tre_mm = tre.p95;
                 target.p99_tre_mm = tre.p99;
@@ -351,7 +355,7 @@ void printMonteCarloStudy(std::ostream& output, const MonteCarloStudy& study) {
 
     output << "\n# TRE\n";
     output << "n_fiducials fle_mm target distance_mm mean_mm median_mm "
-              "p50_mm p95_mm p99_mm rms_mm mean_tre2_mm2 "
+              "p5_mm p50_mm p95_mm p99_mm rms_mm mean_tre2_mm2 "
               "fitzpatrick_tre2_mm2 relative_error_tre2\n";
 
     double max_abs_relative_tre2 = 0.0;
@@ -363,6 +367,7 @@ void printMonteCarloStudy(std::ostream& output, const MonteCarloStudy& study) {
                    << target.distance_from_centroid_mm << " "
                    << target.mean_tre_mm << " "
                    << target.median_tre_mm << " "
+                   << target.p5_tre_mm << " "
                    << target.p50_tre_mm << " "
                    << target.p95_tre_mm << " "
                    << target.p99_tre_mm << " "
@@ -376,13 +381,14 @@ void printMonteCarloStudy(std::ostream& output, const MonteCarloStudy& study) {
     }
 
     output << "\n# FRE\n";
-    output << "n_fiducials fle_mm mean_mm median_mm p50_mm p95_mm p99_mm "
+    output << "n_fiducials fle_mm mean_mm median_mm p5_mm p50_mm p95_mm p99_mm "
               "rms_mm mean_fre2_mm2 sibson_fre2_mm2 relative_error_fre2\n";
     for (const auto& configuration : study.configurations) {
         output << configuration.fiducial_count << " "
                << std::setprecision(6) << configuration.fle_rms_mm << " "
                << configuration.fre.mean_mm << " "
                << configuration.fre.median_mm << " "
+               << configuration.fre.p5_mm << " "
                << configuration.fre.p50_mm << " "
                << configuration.fre.p95_mm << " "
                << configuration.fre.p99_mm << " "

@@ -59,6 +59,7 @@ TEST(RegistrationMetricsTest, FitzpatrickMatchesHandCalculationOffAxis) {
 TEST(RegistrationMetricsTest, LinearPercentileInterpolates) {
     const std::vector<double> samples{1.0, 2.0, 3.0, 4.0};
     EXPECT_NEAR(linearPercentile(samples, 0.0), 1.0, 1e-12);
+    EXPECT_NEAR(linearPercentile(samples, 0.05), 1.15, 1e-12);
     EXPECT_NEAR(linearPercentile(samples, 0.5), 2.5, 1e-12);
     EXPECT_NEAR(linearPercentile(samples, 1.0), 4.0, 1e-12);
 }
@@ -76,6 +77,8 @@ TEST(MonteCarloStudyTest, ZeroNoiseRecoversTargets) {
     EXPECT_NEAR(study.configurations[0].fre.mean_mm, 0.0, 1e-9);
     ASSERT_EQ(study.configurations[0].targets.size(), 2U);
     EXPECT_NEAR(study.configurations[0].targets[0].mean_tre_mm, 0.0, 1e-9);
+    EXPECT_NEAR(study.configurations[0].targets[0].p5_tre_mm, 0.0, 1e-9);
+    EXPECT_NEAR(study.configurations[0].targets[0].p95_tre_mm, 0.0, 1e-9);
     EXPECT_NEAR(study.configurations[0].targets[1].mean_tre_mm, 0.0, 1e-9);
     EXPECT_NEAR(
         study.configurations[0].targets[0].fitzpatrick_tre2_mm2,

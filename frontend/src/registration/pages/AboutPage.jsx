@@ -15,7 +15,7 @@ export default function AboutPage() {
         <li>Synthetic fiducials and Gaussian noise only</li>
         <li>No tracker, no DICOM, no patient</li>
         <li>A missing export is shown as —</li>
-        <li>p5 was not written by the Monte Carlo program</li>
+        <li>p5 and p95 are Hyndman–Fan type 7 percentiles of the exported trials</li>
       </ul>
     </section>
   );

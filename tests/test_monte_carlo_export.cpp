@@ -36,6 +36,8 @@ TEST(MonteCarloExportTest, WritesJsonCsvAndPoints) {
     EXPECT_NE(results.find("\"units\": \"mm\""), std::string::npos);
     EXPECT_NE(results.find("\"clinical\": false"), std::string::npos);
     EXPECT_NE(results.find("\"trials_per_configuration\": 3"), std::string::npos);
+    EXPECT_NE(results.find("\"p5_tre_mm\""), std::string::npos);
+    EXPECT_NE(results.find("\"p95_tre_mm\""), std::string::npos);
 
     std::ifstream csv(directory / "mc.csv");
     std::string header;

@@ -23,7 +23,13 @@ export default function MonteCarloPage() {
         const row = findConfiguration(results, selectedCount, value);
         const item = findTarget(row, activeName);
         return item
-          ? { fle: value, mean: item.mean_tre_mm, formula: item.fitzpatrick_rms_tre_mm, p95: item.p95_tre_mm }
+          ? {
+              fle: value,
+              mean: item.mean_tre_mm,
+              formula: item.fitzpatrick_rms_tre_mm,
+              p5: item.p5_tre_mm,
+              p95: item.p95_tre_mm,
+            }
           : null;
       })
       .filter(Boolean);
@@ -32,8 +38,9 @@ export default function MonteCarloPage() {
   return (
     <section>
       <p className="reg-lead">
-        Histogram counts and summary statistics come from <code>results.json</code>. p5 was not
-        exported, so that band is —.
+        Histogram counts and summary statistics come from <code>results.json</code>. The noise
+        chart uses a log scale. Its band is the measured p5 to p95 of the same trials, or — if
+        either quantile is missing.
       </p>
       <div className="reg-controls">
         <label>
@@ -67,18 +74,19 @@ export default function MonteCarloPage() {
       </div>
       <Histogram target={target} />
       <h2>Mean TRE against FLE</h2>
-      <p className="reg-note">Solid: measured mean. Dashed: Fitzpatrick RMS. Same N and target as the controls.</p>
+      <p className="reg-note">Solid: measured mean. Dashed: Fitzpatrick RMS. Shaded: measured p5–p95. Both axes are log10.</p>
       <LineChart series={series} />
       <h2>Selected summary</h2>
       <table className="reg-table">
         <tbody>
           <tr><th>Mean TRE (mm)</th><td>{showNumber(target?.mean_tre_mm)}</td></tr>
+          <tr><th>p5 (mm)</th><td>{showNumber(target?.p5_tre_mm)}</td></tr>
           <tr><th>p50 (mm)</th><td>{showNumber(target?.p50_tre_mm)}</td></tr>
           <tr><th>p95 (mm)</th><td>{showNumber(target?.p95_tre_mm)}</td></tr>
           <tr><th>p99 (mm)</th><td>{showNumber(target?.p99_tre_mm)}</td></tr>
           <tr><th>Fitzpatrick RMS (mm)</th><td>{showNumber(target?.fitzpatrick_rms_tre_mm)}</td></tr>
           <tr><th>Relative TRE²</th><td>{showNumber(target?.relative_error_tre2, 8)}</td></tr>
-          <tr><th>p5–p95 band</th><td>—</td></tr>
+          <tr><th>p5–p95 band (mm)</th><td>{formatBand(target)}</td></tr>
         </tbody>
       </table>
       <h2>mc.csv preview</h2>
@@ -130,26 +138,51 @@ function Marker({ target, field, color, label, width, bins }) {
   );
 }
 
+function formatBand(target) {
+  const low = target?.p5_tre_mm;
+  const high = target?.p95_tre_mm;
+  if (typeof low !== "number" || typeof high !== "number" || !Number.isFinite(low) || !Number.isFinite(high)) {
+    return "—";
+  }
+  return `${showNumber(low)} – ${showNumber(high)}`;
+}
+
+function positive(value) {
+  return typeof value === "number" && Number.isFinite(value) && value > 0;
+}
+
 function LineChart({ series }) {
-  if (series.length === 0) return <p className="reg-note">Curve: —</p>;
-  const maxFle = Math.max(...series.map((item) => item.fle), 1e-9);
-  const maxTre = Math.max(...series.map((item) => Math.max(item.mean, item.formula)), 1e-9) * 1.1;
-  const xOf = (fle) => 50 + (fle / maxFle) * 540;
-  const yOf = (tre) => 230 - (tre / maxTre) * 190;
-  const meanPoints = series.map((item) => `${xOf(item.fle)},${yOf(item.mean)}`).join(" ");
-  const formulaPoints = series.map((item) => `${xOf(item.fle)},${yOf(item.formula)}`).join(" ");
+  const usable = series.filter(
+    (item) => positive(item.fle) && positive(item.mean) && positive(item.formula) && positive(item.p5) && positive(item.p95)
+  );
+  if (usable.length === 0) return <p className="reg-note">Log curve: —</p>;
+  const log = (value) => Math.log10(value);
+  const fleLogs = usable.map((item) => log(item.fle));
+  const treLogs = usable.flatMap((item) => [item.mean, item.formula, item.p5, item.p95].map(log));
+  const minFle = Math.min(...fleLogs);
+  const maxFle = Math.max(...fleLogs);
+  const minTre = Math.min(...treLogs);
+  const maxTre = Math.max(...treLogs);
+  const fleSpan = Math.max(maxFle - minFle, 1e-9);
+  const treSpan = Math.max(maxTre - minTre, 1e-9);
+  const xOf = (fle) => 70 + ((log(fle) - minFle) / fleSpan) * 500;
+  const yOf = (tre) => 220 - ((log(tre) - minTre) / treSpan) * 170;
+  const meanPoints = usable.map((item) => `${xOf(item.fle)},${yOf(item.mean)}`).join(" ");
+  const formulaPoints = usable.map((item) => `${xOf(item.fle)},${yOf(item.formula)}`).join(" ");
+  const band = `${usable.map((item) => `${xOf(item.fle)},${yOf(item.p95)}`).join(" ")} ${[...usable].reverse().map((item) => `${xOf(item.fle)},${yOf(item.p5)}`).join(" ")}`;
   return (
-    <svg className="reg-chart" viewBox="0 0 640 280" role="img" aria-label="Mean TRE against FLE">
-      <line x1="50" y1="230" x2="590" y2="230" stroke="#1B2631" />
-      <line x1="50" y1="40" x2="50" y2="230" stroke="#1B2631" />
+    <svg className="reg-chart" viewBox="0 0 640 280" role="img" aria-label="Mean TRE against FLE on log axes">
+      <line x1="70" y1="220" x2="570" y2="220" stroke="#1B2631" />
+      <line x1="70" y1="50" x2="70" y2="220" stroke="#1B2631" />
+      <polygon points={band} fill="#35566F" opacity="0.18" />
       <polyline fill="none" stroke="#35566F" strokeWidth="2" points={meanPoints} />
       <polyline fill="none" stroke="#B23A2E" strokeWidth="2" strokeDasharray="6 4" points={formulaPoints} />
-      {series.map((item) => (
+      {usable.map((item) => (
         <circle key={item.fle} cx={xOf(item.fle)} cy={yOf(item.mean)} r="4" fill="#35566F" />
       ))}
-      <text x="280" y="262" fill="#1B2631" fontSize="12">FLE (mm)</text>
-      <text x="60" y="32" fill="#35566F" fontSize="12">mean</text>
-      <text x="120" y="32" fill="#B23A2E" fontSize="12">Fitzpatrick RMS</text>
+      <text x="250" y="258" fill="#1B2631" fontSize="12">log10 FLE (mm)</text>
+      <text x="78" y="42" fill="#35566F" fontSize="12">log10 TRE</text>
+      <text x="160" y="42" fill="#B23A2E" fontSize="12">Fitzpatrick RMS</text>
     </svg>
   );
 }
