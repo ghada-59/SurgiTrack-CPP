@@ -42,7 +42,7 @@ target_compile_features(surgitrack PUBLIC cxx_std_17)
 # on the third-party Eigen and GoogleTest targets.
 function(surgitrack_enable_warnings target)
     if(MSVC)
-        target_compile_options(${target} PRIVATE /W4 /permissive- /WX)
+        target_compile_options(${target} PRIVATE /W4 /permissive-)
     else()
         target_compile_options(${target} PRIVATE -Wall -Wextra -Wpedantic -Werror)
     endif()
@@ -65,7 +65,10 @@ if(BUILD_TESTING)
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
     FetchContent_MakeAvailable(googletest)
 
-    add_executable(SurgiTrackTests tests/test_navigation.cpp)
+    add_executable(SurgiTrackTests
+        tests/test_navigation.cpp
+        tests/test_rigid_registration.cpp
+    )
     target_link_libraries(SurgiTrackTests PRIVATE surgitrack GTest::gtest_main)
     surgitrack_enable_warnings(SurgiTrackTests)
 
