@@ -28,6 +28,7 @@ set(BUILD_TESTING ${SURGITRACK_BUILD_TESTING} CACHE BOOL "Build tests" FORCE)
 add_library(surgitrack
     src/CoordinateTransform.cpp
     src/SafetyGeofence.cpp
+    src/RigidRegistration.cpp
 )
 
 target_include_directories(surgitrack PUBLIC
@@ -41,9 +42,9 @@ target_compile_features(surgitrack PUBLIC cxx_std_17)
 # on the third-party Eigen and GoogleTest targets.
 function(surgitrack_enable_warnings target)
     if(MSVC)
-        target_compile_options(${target} PRIVATE /W4 /permissive-)
+        target_compile_options(${target} PRIVATE /W4 /permissive- /WX)
     else()
-        target_compile_options(${target} PRIVATE -Wall -Wextra -Wpedantic)
+        target_compile_options(${target} PRIVATE -Wall -Wextra -Wpedantic -Werror)
     endif()
 endfunction()
 
