@@ -29,6 +29,8 @@ add_library(surgitrack
     src/CoordinateTransform.cpp
     src/SafetyGeofence.cpp
     src/RigidRegistration.cpp
+    src/RegistrationMetrics.cpp
+    src/MonteCarloStudy.cpp
 )
 
 target_include_directories(surgitrack PUBLIC
@@ -50,9 +52,18 @@ endfunction()
 
 surgitrack_enable_warnings(surgitrack)
 
+find_package(OpenMP COMPONENTS CXX)
+if(OpenMP_CXX_FOUND)
+    target_link_libraries(surgitrack PUBLIC OpenMP::OpenMP_CXX)
+endif()
+
 add_executable(SurgiTrackApp src/main.cpp)
 target_link_libraries(SurgiTrackApp PRIVATE surgitrack)
 surgitrack_enable_warnings(SurgiTrackApp)
+
+add_executable(SurgiTrackMonteCarlo src/MonteCarloMain.cpp)
+target_link_libraries(SurgiTrackMonteCarlo PRIVATE surgitrack)
+surgitrack_enable_warnings(SurgiTrackMonteCarlo)
 
 if(BUILD_TESTING)
     enable_testing()
@@ -68,6 +79,7 @@ if(BUILD_TESTING)
     add_executable(SurgiTrackTests
         tests/test_navigation.cpp
         tests/test_rigid_registration.cpp
+        tests/test_registration_metrics.cpp
     )
     target_link_libraries(SurgiTrackTests PRIVATE surgitrack GTest::gtest_main)
     surgitrack_enable_warnings(SurgiTrackTests)
