@@ -31,6 +31,7 @@ add_library(surgitrack
     src/RigidRegistration.cpp
     src/RegistrationMetrics.cpp
     src/MonteCarloStudy.cpp
+    src/MonteCarloExport.cpp
 )
 
 target_include_directories(surgitrack PUBLIC
@@ -80,6 +81,7 @@ if(BUILD_TESTING)
         tests/test_navigation.cpp
         tests/test_rigid_registration.cpp
         tests/test_registration_metrics.cpp
+        tests/test_monte_carlo_export.cpp
     )
     target_link_libraries(SurgiTrackTests PRIVATE surgitrack GTest::gtest_main)
     surgitrack_enable_warnings(SurgiTrackTests)

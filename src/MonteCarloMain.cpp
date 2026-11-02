@@ -1,3 +1,4 @@
+#include "surgitrack/MonteCarloExport.hpp"
 #include "surgitrack/MonteCarloStudy.hpp"
 
 #include <iostream>
@@ -7,14 +8,16 @@
 namespace {
 
 void printUsage(std::ostream& output) {
-    output << "Usage: SurgiTrackMonteCarlo [--trials N] [--seed S]\n"
-              "Academic rigid-registration simulation. Units are millimetres.\n";
+    output << "Usage: SurgiTrackMonteCarlo [--trials N] [--seed S] [--output DIR]\n"
+              "Academic rigid-registration simulation. Units are millimetres.\n"
+              "With --output, writes results.json, mc.csv, points.json and SVG figures.\n";
 }
 
 } // namespace
 
 int main(int argc, char** argv) {
     surgitrack::MonteCarloOptions options;
+    std::string output_directory;
     try {
         for (int index = 1; index < argc; ++index) {
             const std::string argument = argv[index];
@@ -31,6 +34,8 @@ int main(int argc, char** argv) {
                 options.trials = std::stoi(argv[++index]);
             } else if (argument == "--seed") {
                 options.seed = std::stoull(argv[++index]);
+            } else if (argument == "--output") {
+                output_directory = argv[++index];
             } else {
                 std::cerr << "Unknown argument: " << argument << "\n";
                 printUsage(std::cerr);
@@ -46,6 +51,10 @@ int main(int argc, char** argv) {
     try {
         const surgitrack::MonteCarloStudy study = surgitrack::runMonteCarloStudy(options);
         surgitrack::printMonteCarloStudy(std::cout, study);
+        if (!output_directory.empty()) {
+            surgitrack::exportMonteCarloArtifacts(study, output_directory);
+            std::cout << "wrote artifacts to " << output_directory << "\n";
+        }
     } catch (const std::exception& error) {
         std::cerr << "Monte Carlo failed: " << error.what() << "\n";
         return 1;
