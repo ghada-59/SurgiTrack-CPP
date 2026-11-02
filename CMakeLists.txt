@@ -31,6 +31,16 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(nlohmann_json)
 
+set(CLI11_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(CLI11_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+FetchContent_Declare(
+    CLI11
+    GIT_REPOSITORY https://github.com/CLIUtils/CLI11.git
+    GIT_TAG v2.4.2
+    GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(CLI11)
+
 # Restore the test setting for SurgiTrack's own test suite.
 set(BUILD_TESTING ${SURGITRACK_BUILD_TESTING} CACHE BOOL "Build tests" FORCE)
 
@@ -72,7 +82,7 @@ target_link_libraries(SurgiTrackApp PRIVATE surgitrack)
 surgitrack_enable_warnings(SurgiTrackApp)
 
 add_executable(SurgiTrackMonteCarlo src/MonteCarloMain.cpp)
-target_link_libraries(SurgiTrackMonteCarlo PRIVATE surgitrack)
+target_link_libraries(SurgiTrackMonteCarlo PRIVATE surgitrack CLI11::CLI11)
 surgitrack_enable_warnings(SurgiTrackMonteCarlo)
 
 if(BUILD_TESTING)
