@@ -239,6 +239,6 @@ Centroid TRE histogram for N = 6 and FLE 0.25 mm, with p50, p95, and p99 from th
 - Fiducials are a fixed synthetic layout inside a 100 mm box. Targets lie on the direction `(1, 1, 1)` at 0, 25, 50, and 75 mm from the centroid of the subset in use.
 - FLE is isotropic and applied to one cloud. Fitzpatrick's expression is a small-noise approximation; this run's largest absolute relative TRE² gap was the printed `0.02578169`.
 - FRE on the fiducials is not a substitute for TRE. The study reports both.
-- The JSON writer is in-tree. nlohmann/json and CLI11 are not dependencies. The Monte Carlo flags are `--trials`, `--seed`, and `--output`.
+- `results.json` and `points.json` are written with nlohmann/json 3.11.3. CLI11 is not a dependency yet. The Monte Carlo flags are `--trials`, `--seed`, and `--output`.
 - GCC builds with `-Wall -Wextra -Wpedantic -Werror`. The MSVC flags stay `/W4 /permissive-` without `/WX`, because that combination was not compiled here.
 - Remote GitHub Actions status for this branch: —.

@@ -22,6 +22,15 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(eigen)
 
+set(JSON_BuildTests OFF CACHE BOOL "" FORCE)
+FetchContent_Declare(
+    nlohmann_json
+    GIT_REPOSITORY https://github.com/nlohmann/json.git
+    GIT_TAG v3.11.3
+    GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(nlohmann_json)
+
 # Restore the test setting for SurgiTrack's own test suite.
 set(BUILD_TESTING ${SURGITRACK_BUILD_TESTING} CACHE BOOL "Build tests" FORCE)
 
@@ -38,7 +47,7 @@ target_include_directories(surgitrack PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-target_link_libraries(surgitrack PUBLIC Eigen3::Eigen)
+target_link_libraries(surgitrack PUBLIC Eigen3::Eigen nlohmann_json::nlohmann_json)
 target_compile_features(surgitrack PUBLIC cxx_std_17)
 
 # Enable useful compiler diagnostics on project code without forcing warnings

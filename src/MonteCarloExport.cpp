@@ -3,6 +3,8 @@
 #include "surgitrack/RegistrationMetrics.hpp"
 #include "surgitrack/RigidRegistration.hpp"
 
+#include <nlohmann/json.hpp>
+
 #include <algorithm>
 #include <cmath>
 #include <fstream>
@@ -15,113 +17,32 @@
 namespace surgitrack {
 namespace {
 
-class JsonScope {
-public:
-    JsonScope(std::ostream& output, char open, char close)
-        : output_(output), close_(close) {
-        output_ << open << '\n';
-    }
-
-    ~JsonScope() {
-        output_ << '\n' << indent_ << close_;
-    }
-
-    JsonScope(const JsonScope&) = delete;
-    JsonScope& operator=(const JsonScope&) = delete;
-
-    std::ostream& field(const char* key) {
-        if (!first_) {
-            output_ << ",\n";
-        }
-        first_ = false;
-        output_ << indent_ << '"' << key << "\": ";
-        return output_;
-    }
-
-    std::ostream& element() {
-        if (!first_) {
-            output_ << ",\n";
-        }
-        first_ = false;
-        output_ << indent_;
-        return output_;
-    }
-
-private:
-    std::ostream& output_;
-    char close_;
-    bool first_ = true;
-    const char* indent_ = "  ";
-};
-
-void writeNumber(std::ostream& output, double value) {
-    if (!std::isfinite(value)) {
-        output << "null";
-        return;
-    }
-    std::ostringstream formatted;
-    formatted << std::setprecision(17) << value;
-    output << formatted.str();
+nlohmann::json vectorToJson(const Eigen::Vector3d& value) {
+    return nlohmann::json::array({value.x(), value.y(), value.z()});
 }
 
-void writeString(std::ostream& output, const std::string& value) {
-    output << '"';
-    for (const char character : value) {
-        switch (character) {
-            case '"':
-                output << "\\\"";
-                break;
-            case '\\':
-                output << "\\\\";
-                break;
-            case '\n':
-                output << "\\n";
-                break;
-            default:
-                output << character;
-                break;
-        }
-    }
-    output << '"';
-}
-
-void writeVector3(std::ostream& output, const Eigen::Vector3d& value) {
-    output << '[';
-    writeNumber(output, value.x());
-    output << ',';
-    writeNumber(output, value.y());
-    output << ',';
-    writeNumber(output, value.z());
-    output << ']';
-}
-
-void writeMatrix3(std::ostream& output, const Eigen::Matrix3d& value) {
-    output << '[';
+nlohmann::json matrixToJson(const Eigen::Matrix3d& value) {
+    nlohmann::json rows = nlohmann::json::array();
     for (int row = 0; row < 3; ++row) {
-        if (row > 0) {
-            output << ',';
-        }
-        output << '[';
-        for (int col = 0; col < 3; ++col) {
-            if (col > 0) {
-                output << ',';
-            }
-            writeNumber(output, value(row, col));
-        }
-        output << ']';
+        rows.push_back(nlohmann::json::array({value(row, 0), value(row, 1), value(row, 2)}));
     }
-    output << ']';
+    return rows;
 }
 
-void writePoints(std::ostream& output, const Eigen::Matrix3Xd& points) {
-    output << '[';
-    for (Eigen::Index col = 0; col < points.cols(); ++col) {
-        if (col > 0) {
-            output << ',';
-        }
-        writeVector3(output, points.col(col));
+nlohmann::json pointsToJson(const Eigen::Matrix3Xd& points) {
+    nlohmann::json array = nlohmann::json::array();
+    for (Eigen::Index column = 0; column < points.cols(); ++column) {
+        array.push_back(vectorToJson(points.col(column)));
     }
-    output << ']';
+    return array;
+}
+
+void writeJsonFile(const std::filesystem::path& path, const nlohmann::json& document) {
+    std::ofstream output(path);
+    if (!output) {
+        throw std::runtime_error("Could not write " + path.string());
+    }
+    output << document.dump(2) << '\n';
 }
 
 std::string xmlEscape(const std::string& value) {
@@ -159,11 +80,6 @@ const MonteCarloConfiguration* findConfiguration(
 }
 
 void writeResultsJson(const std::filesystem::path& path, const MonteCarloStudy& study) {
-    std::ofstream output(path);
-    if (!output) {
-        throw std::runtime_error("Could not write " + path.string());
-    }
-
     double max_abs_relative_tre2 = 0.0;
     for (const auto& configuration : study.configurations) {
         for (const auto& target : configuration.targets) {
@@ -172,118 +88,27 @@ void writeResultsJson(const std::filesystem::path& path, const MonteCarloStudy& 
         }
     }
 
-    JsonScope root(output, '{', '}');
-    root.field("version") << "\"1.0\"";
-    root.field("units") << "\"mm\"";
-    root.field("project") << "\"SurgiTrack-CPP\"";
-    root.field("academic") << "true";
-    root.field("clinical") << "false";
-    root.field("disclaimer")
-        << "\"Academic simulation. Not a clinical, diagnostic, or surgical system.\"";
-    root.field("seed") << study.seed;
-    root.field("trials_per_configuration") << study.trials_per_configuration;
-    root.field("openmp_threads") << study.thread_count;
-    root.field("generated_at_utc");
-    writeString(output, study.generated_at_utc);
-    root.field("fle_definition")
-        << "\"3D RMS. Per-axis sigma = FLE/sqrt(3). Noise is added only to the moving fiducials.\"";
-    root.field("percentile") << "\"Hyndman-Fan type 7. median is p50.\"";
-    root.field("formula")
-        << "\"TRE^2 = (FLE^2 / N) * (1 + (1/3) * sum d_k^2 / f_k^2)\"";
-    root.field("fre_formula") << "\"Sibson: expected FRE^2 = (1 - 2/N) * FLE^2\"";
-    root.field("point_convention")
-        << "\"C++ clouds are 3 x N, one point per column. JSON points are [x, y, z].\"";
-    root.field("true_rotation");
-    writeMatrix3(output, study.true_rotation);
-    root.field("true_translation_mm");
-    writeVector3(output, study.true_translation_mm);
-    root.field("max_abs_relative_error_tre2");
-    writeNumber(output, max_abs_relative_tre2);
-    root.field("csv_rows")
-        << static_cast<long long>(study.configurations.size())
-            * static_cast<long long>(study.trials_per_configuration);
-
-    root.field("fle_levels_mm") << '[';
-    for (std::size_t index = 0; index < study.fle_rms_mm.size(); ++index) {
-        if (index > 0) {
-            output << ',';
-        }
-        writeNumber(output, study.fle_rms_mm[index]);
-    }
-    output << ']';
-
-    root.field("fiducial_counts") << '[';
-    for (std::size_t index = 0; index < study.fiducial_counts.size(); ++index) {
-        if (index > 0) {
-            output << ',';
-        }
-        output << study.fiducial_counts[index];
-    }
-    output << ']';
-
-    root.field("configurations") << '[';
-    bool first_configuration = true;
+    nlohmann::json configurations = nlohmann::json::array();
     for (const auto& configuration : study.configurations) {
-        if (!first_configuration) {
-            output << ',';
-        }
-        first_configuration = false;
-        output << "\n  {\n    \"n_fiducials\": " << configuration.fiducial_count;
-        output << ",\n    \"fle_rms_mm\": ";
-        writeNumber(output, configuration.fle_rms_mm);
-        output << ",\n    \"fre\": {";
-        output << "\"mean_mm\": ";
-        writeNumber(output, configuration.fre.mean_mm);
-        output << ",\"median_mm\": ";
-        writeNumber(output, configuration.fre.median_mm);
-        output << ",\"p50_mm\": ";
-        writeNumber(output, configuration.fre.p50_mm);
-        output << ",\"p95_mm\": ";
-        writeNumber(output, configuration.fre.p95_mm);
-        output << ",\"p99_mm\": ";
-        writeNumber(output, configuration.fre.p99_mm);
-        output << ",\"rms_mm\": ";
-        writeNumber(output, configuration.fre.rms_mm);
-        output << ",\"mean_squared_mm2\": ";
-        writeNumber(output, configuration.fre.mean_squared_mm2);
-        output << ",\"sibson_fre2_mm2\": ";
-        writeNumber(output, configuration.fre.sibson_fre2_mm2);
-        output << ",\"relative_error_fre2\": ";
-        writeNumber(output, configuration.fre.relative_error_fre2);
-        output << "}";
-        output << ",\n    \"targets\": [";
+        nlohmann::json targets = nlohmann::json::array();
         for (std::size_t target_index = 0; target_index < configuration.targets.size();
              ++target_index) {
             const auto& target = configuration.targets[target_index];
-            if (target_index > 0) {
-                output << ',';
-            }
-            output << "\n      {\"name\": ";
-            writeString(output, target.name);
-            output << ",\"distance_from_centroid_mm\": ";
-            writeNumber(output, target.distance_from_centroid_mm);
-            output << ",\"position_mm\": ";
-            writeVector3(output, target.position_mm);
-            output << ",\"mean_tre_mm\": ";
-            writeNumber(output, target.mean_tre_mm);
-            output << ",\"median_tre_mm\": ";
-            writeNumber(output, target.median_tre_mm);
-            output << ",\"p50_tre_mm\": ";
-            writeNumber(output, target.p50_tre_mm);
-            output << ",\"p95_tre_mm\": ";
-            writeNumber(output, target.p95_tre_mm);
-            output << ",\"p99_tre_mm\": ";
-            writeNumber(output, target.p99_tre_mm);
-            output << ",\"rms_tre_mm\": ";
-            writeNumber(output, target.rms_tre_mm);
-            output << ",\"mean_tre2_mm2\": ";
-            writeNumber(output, target.mean_tre2_mm2);
-            output << ",\"fitzpatrick_tre2_mm2\": ";
-            writeNumber(output, target.fitzpatrick_tre2_mm2);
-            output << ",\"fitzpatrick_rms_tre_mm\": ";
-            writeNumber(output, std::sqrt(std::max(0.0, target.fitzpatrick_tre2_mm2)));
-            output << ",\"relative_error_tre2\": ";
-            writeNumber(output, target.relative_error_tre2);
+            nlohmann::json item = {
+                {"name", target.name},
+                {"distance_from_centroid_mm", target.distance_from_centroid_mm},
+                {"position_mm", vectorToJson(target.position_mm)},
+                {"mean_tre_mm", target.mean_tre_mm},
+                {"median_tre_mm", target.median_tre_mm},
+                {"p50_tre_mm", target.p50_tre_mm},
+                {"p95_tre_mm", target.p95_tre_mm},
+                {"p99_tre_mm", target.p99_tre_mm},
+                {"rms_tre_mm", target.rms_tre_mm},
+                {"mean_tre2_mm2", target.mean_tre2_mm2},
+                {"fitzpatrick_tre2_mm2", target.fitzpatrick_tre2_mm2},
+                {"fitzpatrick_rms_tre_mm", std::sqrt(std::max(0.0, target.fitzpatrick_tre2_mm2))},
+                {"relative_error_tre2", target.relative_error_tre2},
+            };
             if (target_index < configuration.tre_samples_mm.size()) {
                 constexpr int kBins = 40;
                 const double upper = std::max(target.p99_tre_mm * 1.2, 1e-9);
@@ -299,23 +124,58 @@ void writeResultsJson(const std::filesystem::path& path, const MonteCarloStudy& 
                     }
                     ++counts[static_cast<std::size_t>(bin)];
                 }
-                output << ",\"histogram\": {\"bin_width_mm\": ";
-                writeNumber(output, width);
-                output << ",\"bin_start_mm\": 0,\"counts\": [";
-                for (int bin = 0; bin < kBins; ++bin) {
-                    if (bin > 0) {
-                        output << ',';
-                    }
-                    output << counts[static_cast<std::size_t>(bin)];
-                }
-                output << "]}";
+                item["histogram"] = {
+                    {"bin_width_mm", width},
+                    {"bin_start_mm", 0.0},
+                    {"counts", counts},
+                };
             }
-            output << '}';
+            targets.push_back(std::move(item));
         }
-        output << "\n    ]";
-        output << "\n  }";
+        configurations.push_back({
+            {"n_fiducials", configuration.fiducial_count},
+            {"fle_rms_mm", configuration.fle_rms_mm},
+            {"fre", {
+                {"mean_mm", configuration.fre.mean_mm},
+                {"median_mm", configuration.fre.median_mm},
+                {"p50_mm", configuration.fre.p50_mm},
+                {"p95_mm", configuration.fre.p95_mm},
+                {"p99_mm", configuration.fre.p99_mm},
+                {"rms_mm", configuration.fre.rms_mm},
+                {"mean_squared_mm2", configuration.fre.mean_squared_mm2},
+                {"sibson_fre2_mm2", configuration.fre.sibson_fre2_mm2},
+                {"relative_error_fre2", configuration.fre.relative_error_fre2},
+            }},
+            {"targets", std::move(targets)},
+        });
     }
-    output << "\n  ]\n";
+
+    const nlohmann::json document = {
+        {"version", "1.0"},
+        {"units", "mm"},
+        {"project", "SurgiTrack-CPP"},
+        {"academic", true},
+        {"clinical", false},
+        {"disclaimer", "Academic simulation. Not a clinical, diagnostic, or surgical system."},
+        {"seed", study.seed},
+        {"trials_per_configuration", study.trials_per_configuration},
+        {"openmp_threads", study.thread_count},
+        {"generated_at_utc", study.generated_at_utc},
+        {"fle_definition", "3D RMS. Per-axis sigma = FLE/sqrt(3). Noise is added only to the moving fiducials."},
+        {"percentile", "Hyndman-Fan type 7. median is p50."},
+        {"formula", "TRE^2 = (FLE^2 / N) * (1 + (1/3) * sum d_k^2 / f_k^2)"},
+        {"fre_formula", "Sibson: expected FRE^2 = (1 - 2/N) * FLE^2"},
+        {"point_convention", "C++ clouds are 3 x N, one point per column. JSON points are [x, y, z]."},
+        {"true_rotation", matrixToJson(study.true_rotation)},
+        {"true_translation_mm", vectorToJson(study.true_translation_mm)},
+        {"max_abs_relative_error_tre2", max_abs_relative_tre2},
+        {"csv_rows", static_cast<long long>(study.configurations.size())
+            * static_cast<long long>(study.trials_per_configuration)},
+        {"fle_levels_mm", study.fle_rms_mm},
+        {"fiducial_counts", study.fiducial_counts},
+        {"configurations", std::move(configurations)},
+    };
+    writeJsonFile(path, document);
 }
 
 void writeCsv(const std::filesystem::path& path, const MonteCarloStudy& study) {
@@ -366,49 +226,32 @@ void writePointsJson(const std::filesystem::path& path, const MonteCarloStudy& s
     const Eigen::Matrix3Xd registered_mm =
         (registration.rotation * moving_mm).colwise() + registration.translation_mm;
 
-    std::ofstream output(path);
-    if (!output) {
-        throw std::runtime_error("Could not write " + path.string());
+    nlohmann::json residuals = nlohmann::json::array();
+    for (Eigen::Index column = 0; column < demo_count; ++column) {
+        residuals.push_back((registered_mm.col(column) - fixed_mm.col(column)).norm());
     }
-
-    output << "{\n";
-    output << "  \"version\": \"1.0\",\n";
-    output << "  \"units\": \"mm\",\n";
-    output << "  \"academic\": true,\n";
-    output << "  \"clinical\": false,\n";
-    output << "  \"description\": \"Noiseless registration of the first "
-           << demo_count << " reference fiducials.\",\n";
-    output << "  \"point_convention\": "
-              "\"C++ clouds are 3 x N, one point per column. JSON points are [x, y, z].\",\n";
-    output << "  \"n_fiducials\": " << demo_count << ",\n";
-    output << "  \"reference_fiducials_mm\": ";
-    writePoints(output, study.fiducials_mm);
-    output << ",\n  \"moving_mm\": ";
-    writePoints(output, moving_mm);
-    output << ",\n  \"fixed_mm\": ";
-    writePoints(output, fixed_mm);
-    output << ",\n  \"registered_mm\": ";
-    writePoints(output, registered_mm);
-    output << ",\n  \"rotation\": ";
-    writeMatrix3(output, registration.rotation);
-    output << ",\n  \"translation_mm\": ";
-    writeVector3(output, registration.translation_mm);
-    output << ",\n  \"true_rotation\": ";
-    writeMatrix3(output, study.true_rotation);
-    output << ",\n  \"true_translation_mm\": ";
-    writeVector3(output, study.true_translation_mm);
-    output << ",\n  \"fre_rms_mm\": ";
-    writeNumber(output, registration.fre_rms_mm);
-    output << ",\n  \"determinant\": ";
-    writeNumber(output, registration.rotation.determinant());
-    output << ",\n  \"residuals_mm\": [";
-    for (Eigen::Index col = 0; col < demo_count; ++col) {
-        if (col > 0) {
-            output << ',';
-        }
-        writeNumber(output, (registered_mm.col(col) - fixed_mm.col(col)).norm());
-    }
-    output << "]\n}\n";
+    const nlohmann::json document = {
+        {"version", "1.0"},
+        {"units", "mm"},
+        {"academic", true},
+        {"clinical", false},
+        {"description", "Noiseless registration of the first " + std::to_string(demo_count)
+            + " reference fiducials."},
+        {"point_convention", "C++ clouds are 3 x N, one point per column. JSON points are [x, y, z]."},
+        {"n_fiducials", demo_count},
+        {"reference_fiducials_mm", pointsToJson(study.fiducials_mm)},
+        {"moving_mm", pointsToJson(moving_mm)},
+        {"fixed_mm", pointsToJson(fixed_mm)},
+        {"registered_mm", pointsToJson(registered_mm)},
+        {"rotation", matrixToJson(registration.rotation)},
+        {"translation_mm", vectorToJson(registration.translation_mm)},
+        {"true_rotation", matrixToJson(study.true_rotation)},
+        {"true_translation_mm", vectorToJson(study.true_translation_mm)},
+        {"fre_rms_mm", registration.fre_rms_mm},
+        {"determinant", registration.rotation.determinant()},
+        {"residuals_mm", std::move(residuals)},
+    };
+    writeJsonFile(path, document);
 }
 
 void writeDistanceFigure(const std::filesystem::path& path, const MonteCarloStudy& study) {
