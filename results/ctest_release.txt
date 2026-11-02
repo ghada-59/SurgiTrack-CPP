@@ -1,5 +1,5 @@
-Internal ctest changing into directory: /agent/repos/surgitrack-cpp/build
-Test project /agent/repos/surgitrack-cpp/build
+Internal ctest changing into directory: /agent/repos/surgitrack-cpp/build-ninja
+Test project /agent/repos/surgitrack-cpp/build-ninja
       Start  1: CoordinateTransformTest.DefaultIsIdentity
  1/48 Test  #1: CoordinateTransformTest.DefaultIsIdentity .............................   Passed    0.00 sec
       Start  2: CoordinateTransformTest.TranslationPrecision
@@ -95,8 +95,8 @@ Test project /agent/repos/surgitrack-cpp/build
       Start 47: MonteCarloStudyTest.RepeatedSeedMatches
 47/48 Test #47: MonteCarloStudyTest.RepeatedSeedMatches ...............................   Passed    0.00 sec
       Start 48: MonteCarloExportTest.WritesJsonCsvAndPoints
-48/48 Test #48: MonteCarloExportTest.WritesJsonCsvAndPoints ...........................   Passed    0.01 sec
+48/48 Test #48: MonteCarloExportTest.WritesJsonCsvAndPoints ...........................   Passed    0.00 sec
 
 100% tests passed, 0 tests failed out of 48
 
-Total Test time (real) =   0.10 sec
+Total Test time (real) =   0.09 sec
