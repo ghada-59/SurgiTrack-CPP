@@ -53,6 +53,7 @@ TEST(MonteCarloExportTest, WritesJsonCsvAndPoints) {
         }
     }
     EXPECT_EQ(rows, 3);
+    csv.close();
 
     const std::string points = read_all(directory / "points.json");
     EXPECT_NE(points.find("\"units\": \"mm\""), std::string::npos);
