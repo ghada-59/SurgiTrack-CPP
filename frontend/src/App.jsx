@@ -41,6 +41,7 @@ export default function App() {
         <div className="side-note"><small>GEOMETRY MODEL</small><b>2D radial model</b><span>Euclidean distance</span><span>Synthetic straight path</span></div>
         <div className="side-status"><ShieldCheck size={15} /><div><b>Educational simulation</b><small>No patient or device connection</small></div></div>
         <div className="side-footer">C++ core · React visual companion</div>
+        <a className="study-link" href="#/overview">Registration study</a>
       </aside>
       <main id="top">
         <header className="topbar"><div><span>MEDICAL NAVIGATION CONCEPTS</span><i>/</i><strong>Geometric safety simulation</strong></div><button className="reset" onClick={reset}><RotateCcw size={14} /> Reset scenario</button></header>

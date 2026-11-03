@@ -1,0 +1,102 @@
+Internal ctest changing into directory: /agent/repos/surgitrack-cpp/build-ninja
+Test project /agent/repos/surgitrack-cpp/build-ninja
+      Start  1: CoordinateTransformTest.DefaultIsIdentity
+ 1/48 Test  #1: CoordinateTransformTest.DefaultIsIdentity .............................   Passed    0.00 sec
+      Start  2: CoordinateTransformTest.TranslationPrecision
+ 2/48 Test  #2: CoordinateTransformTest.TranslationPrecision ..........................   Passed    0.00 sec
+      Start  3: CoordinateTransformTest.RotationZ90Degrees
+ 3/48 Test  #3: CoordinateTransformTest.RotationZ90Degrees ............................   Passed    0.00 sec
+      Start  4: CoordinateTransformTest.RotationX90Degrees
+ 4/48 Test  #4: CoordinateTransformTest.RotationX90Degrees ............................   Passed    0.00 sec
+      Start  5: CoordinateTransformTest.RotationY90Degrees
+ 5/48 Test  #5: CoordinateTransformTest.RotationY90Degrees ............................   Passed    0.00 sec
+      Start  6: CoordinateTransformTest.CompositionAppliesOtherFirst
+ 6/48 Test  #6: CoordinateTransformTest.CompositionAppliesOtherFirst ..................   Passed    0.00 sec
+      Start  7: CoordinateTransformTest.InverseRestoresPoint
+ 7/48 Test  #7: CoordinateTransformTest.InverseRestoresPoint ..........................   Passed    0.00 sec
+      Start  8: CoordinateTransformTest.RejectsNonFiniteFactoryInputs
+ 8/48 Test  #8: CoordinateTransformTest.RejectsNonFiniteFactoryInputs .................   Passed    0.00 sec
+      Start  9: CoordinateTransformTest.RejectsInvalidHomogeneousMatrices
+ 9/48 Test  #9: CoordinateTransformTest.RejectsInvalidHomogeneousMatrices .............   Passed    0.00 sec
+      Start 10: CoordinateTransformTest.RejectsNonFinitePoints
+10/48 Test #10: CoordinateTransformTest.RejectsNonFinitePoints ........................   Passed    0.00 sec
+      Start 11: CoordinateTransformTest.RejectsOverflowingTransformedPoint
+11/48 Test #11: CoordinateTransformTest.RejectsOverflowingTransformedPoint ............   Passed    0.00 sec
+      Start 12: CoordinateTransformTest.RejectsSingularMatrixInverse
+12/48 Test #12: CoordinateTransformTest.RejectsSingularMatrixInverse ..................   Passed    0.00 sec
+      Start 13: SafetyGeofenceTest.SafePosition
+13/48 Test #13: SafetyGeofenceTest.SafePosition .......................................   Passed    0.00 sec
+      Start 14: SafetyGeofenceTest.WarningPosition
+14/48 Test #14: SafetyGeofenceTest.WarningPosition ....................................   Passed    0.00 sec
+      Start 15: SafetyGeofenceTest.DetectsCriticalViolation
+15/48 Test #15: SafetyGeofenceTest.DetectsCriticalViolation ...........................   Passed    0.00 sec
+      Start 16: SafetyGeofenceTest.CriticalViolationTakesPriority
+16/48 Test #16: SafetyGeofenceTest.CriticalViolationTakesPriority .....................   Passed    0.00 sec
+      Start 17: SafetyGeofenceTest.RejectsInvalidParameters
+17/48 Test #17: SafetyGeofenceTest.RejectsInvalidParameters ...........................   Passed    0.00 sec
+      Start 18: SafetyGeofenceTest.RejectsNonFiniteWarningBuffer
+18/48 Test #18: SafetyGeofenceTest.RejectsNonFiniteWarningBuffer ......................   Passed    0.00 sec
+      Start 19: SafetyGeofenceTest.RejectsNonFiniteStructureParameters
+19/48 Test #19: SafetyGeofenceTest.RejectsNonFiniteStructureParameters ................   Passed    0.00 sec
+      Start 20: SafetyGeofenceTest.HandlesExactSafetyBoundaries
+20/48 Test #20: SafetyGeofenceTest.HandlesExactSafetyBoundaries .......................   Passed    0.00 sec
+      Start 21: SafetyGeofenceTest.ChoosesWarningClosestToProtectedBoundary
+21/48 Test #21: SafetyGeofenceTest.ChoosesWarningClosestToProtectedBoundary ...........   Passed    0.00 sec
+      Start 22: SafetyGeofenceTest.RejectsOverflowingRadiusAndWarningBuffer
+22/48 Test #22: SafetyGeofenceTest.RejectsOverflowingRadiusAndWarningBuffer ...........   Passed    0.00 sec
+      Start 23: SafetyGeofenceTest.RejectsOverflowingDistanceCalculation
+23/48 Test #23: SafetyGeofenceTest.RejectsOverflowingDistanceCalculation ..............   Passed    0.00 sec
+      Start 24: SafetyGeofenceTest.RejectsNonFiniteToolPosition
+24/48 Test #24: SafetyGeofenceTest.RejectsNonFiniteToolPosition .......................   Passed    0.00 sec
+      Start 25: RigidRegistrationTest.RecoversKnownPoseWithoutNoise
+25/48 Test #25: RigidRegistrationTest.RecoversKnownPoseWithoutNoise ...................   Passed    0.00 sec
+      Start 26: RigidRegistrationTest.IdentityHasZeroTranslationAndFre
+26/48 Test #26: RigidRegistrationTest.IdentityHasZeroTranslationAndFre ................   Passed    0.00 sec
+      Start 27: RigidRegistrationTest.TranslationOf10Millimetres
+27/48 Test #27: RigidRegistrationTest.TranslationOf10Millimetres ......................   Passed    0.00 sec
+      Start 28: RigidRegistrationTest.MirroredCloudStaysAProperRotation
+28/48 Test #28: RigidRegistrationTest.MirroredCloudStaysAProperRotation ...............   Passed    0.00 sec
+      Start 29: RigidRegistrationTest.PermutedPairingIsRejected
+29/48 Test #29: RigidRegistrationTest.PermutedPairingIsRejected .......................   Passed    0.00 sec
+      Start 30: RigidRegistrationTest.PermutedPairingHasLargeFreWhenCheckIsDisabled
+30/48 Test #30: RigidRegistrationTest.PermutedPairingHasLargeFreWhenCheckIsDisabled ...   Passed    0.00 sec
+      Start 31: RigidRegistrationTest.MixedMillimetreAndMetreScaleIsRejected
+31/48 Test #31: RigidRegistrationTest.MixedMillimetreAndMetreScaleIsRejected ..........   Passed    0.00 sec
+      Start 32: RigidRegistrationTest.CollinearFiducialsThrow
+32/48 Test #32: RigidRegistrationTest.CollinearFiducialsThrow .........................   Passed    0.00 sec
+      Start 33: RigidRegistrationTest.CoincidentPointsThrow
+33/48 Test #33: RigidRegistrationTest.CoincidentPointsThrow ...........................   Passed    0.00 sec
+      Start 34: RigidRegistrationTest.FewerThanThreePointsThrow
+34/48 Test #34: RigidRegistrationTest.FewerThanThreePointsThrow .......................   Passed    0.00 sec
+      Start 35: RigidRegistrationTest.SizeMismatchThrows
+35/48 Test #35: RigidRegistrationTest.SizeMismatchThrows ..............................   Passed    0.00 sec
+      Start 36: RigidRegistrationTest.NonFiniteCoordinatesThrow
+36/48 Test #36: RigidRegistrationTest.NonFiniteCoordinatesThrow .......................   Passed    0.00 sec
+      Start 37: RigidRegistrationTest.CoplanarFiducialsWarnAndStillRegister
+37/48 Test #37: RigidRegistrationTest.CoplanarFiducialsWarnAndStillRegister ...........   Passed    0.00 sec
+      Start 38: RigidRegistrationTest.NearlyCollinearFiducialsWarn
+38/48 Test #38: RigidRegistrationTest.NearlyCollinearFiducialsWarn ....................   Passed    0.00 sec
+      Start 39: RigidRegistrationTest.RejectsInvalidPairingTolerance
+39/48 Test #39: RigidRegistrationTest.RejectsInvalidPairingTolerance ..................   Passed    0.00 sec
+      Start 40: RigidRegistrationTest.ThreePointTriangleRecoversPlanarRotation
+40/48 Test #40: RigidRegistrationTest.ThreePointTriangleRecoversPlanarRotation ........   Passed    0.00 sec
+      Start 41: RegistrationMetricsTest.FreIsRootMeanSquareResidual
+41/48 Test #41: RegistrationMetricsTest.FreIsRootMeanSquareResidual ...................   Passed    0.00 sec
+      Start 42: RegistrationMetricsTest.TreIsEuclideanDistance
+42/48 Test #42: RegistrationMetricsTest.TreIsEuclideanDistance ........................   Passed    0.00 sec
+      Start 43: RegistrationMetricsTest.FitzpatrickAtCentroidIsFleSquaredOverN
+43/48 Test #43: RegistrationMetricsTest.FitzpatrickAtCentroidIsFleSquaredOverN ........   Passed    0.00 sec
+      Start 44: RegistrationMetricsTest.FitzpatrickMatchesHandCalculationOffAxis
+44/48 Test #44: RegistrationMetricsTest.FitzpatrickMatchesHandCalculationOffAxis ......   Passed    0.00 sec
+      Start 45: RegistrationMetricsTest.LinearPercentileInterpolates
+45/48 Test #45: RegistrationMetricsTest.LinearPercentileInterpolates ..................   Passed    0.00 sec
+      Start 46: MonteCarloStudyTest.ZeroNoiseRecoversTargets
+46/48 Test #46: MonteCarloStudyTest.ZeroNoiseRecoversTargets ..........................   Passed    0.00 sec
+      Start 47: MonteCarloStudyTest.RepeatedSeedMatches
+47/48 Test #47: MonteCarloStudyTest.RepeatedSeedMatches ...............................   Passed    0.00 sec
+      Start 48: MonteCarloExportTest.WritesJsonCsvAndPoints
+48/48 Test #48: MonteCarloExportTest.WritesJsonCsvAndPoints ...........................   Passed    0.00 sec
+
+100% tests passed, 0 tests failed out of 48
+
+Total Test time (real) =   0.09 sec

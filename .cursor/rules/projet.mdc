@@ -1,0 +1,35 @@
+---
+description: Règles du projet SurgiTrack-CPP v2
+alwaysApply: true
+---
+
+# Projet 2 : SurgiTrack-CPP v2 (recalage rigide par points)
+Référence : docs/PLAN.md, section 3 (dont 3.8 et sa suite) et sections 9 à 15.
+
+Planning minute par minute du noyau : docs/PLAN_2H.md (PLAN.md l'emporte en cas d'écart).
+
+## Règles
+- Travaille uniquement dans ce dossier.
+- Ordre : algorithme et tests → Monte Carlo → export JSON → dashboard.
+- N'invente aucun chiffre. Tout résultat vient d'une exécution.
+- Demande avant d'installer. Toolchain MSYS2 sur D:\msys64. Pas d'installation globale.
+- Un commit par étape, puis un court résumé.
+- Projet académique, non clinique.
+
+## Spécifications
+- C++17, CMake + Ninja, Eigen, GoogleTest, nlohmann/json, CLI11. Compiler avec -Wall -Wextra -Werror.
+- Convention : un point = une colonne d'une Eigen::Matrix3Xd. Unités en mm, suffixe _mm sur les variables. Conversion à un seul endroit.
+- Kabsch par SVD : centroïdes, H = Pc * Qc^T, JacobiSVD, correction du déterminant, R = V·D·Uᵀ, t = cq − R·cp.
+- Refuser si σ₂ < 1e-6 × σ₁ (points alignés). Avertir si σ₂ < 1e-2 × σ₁. Vérifier les distances entre paires de points avant le recalage.
+- Tolérances : EXPECT_NEAR, jamais ==.
+- Tests : sans bruit (1e-9), identité, réflexion (det = +1), permutation détectée, 3 points alignés (exception), moins de 3 points, translation de 10 mm.
+- Monte Carlo : FLE (RMS total) de 0,1 / 0,25 / 0,5 / 1,0 mm, 3 à 10 fiduciaux, 10 000 essais, OpenMP avec une graine par thread.
+- Vérification : TRE² ≈ (FLE²/N) × (1 + (1/3) Σ dₖ²/fₖ²), écart d'environ 5 % au plus avec le Monte Carlo.
+- Export : results.json (version, unités), mc.csv, points.json.
+- Sanitizers sous WSL2 si disponible.
+
+## Dashboard (dossier dashboard/, statique)
+- React + Vite, JSX, Context + useReducer (pas de Redux), React Router, three.js pour les points 3D.
+- Pas de Bootstrap.
+- Palette : fond #F1F3F5, surface #FFFFFF, texte #1B2631, accent #35566F, seuil #B23A2E, ambre #D98E04. Polices DM Sans et JetBrains Mono.
+- Pages : Vue d'ensemble, Recalage, Monte Carlo, Géométrie, Tests et CI, À propos.
