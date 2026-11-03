@@ -117,7 +117,7 @@ Release `ctest` on this tree reported:
 Total Test time (real) =   0.09 sec
 ```
 
-The full log is [`results/ctest_release.txt`](results/ctest_release.txt). A Debug Ninja build with `-fsanitize=address,undefined` also reported `100% tests passed, 0 tests failed out of 48` (total test time 0.99 s). GitHub Actions was not executed from this environment, so the remote CI result is —.
+The full log is [`results/ctest_release.txt`](results/ctest_release.txt). A Debug Ninja build with `-fsanitize=address,undefined` also reported `100% tests passed, 0 tests failed out of 48` (total test time 0.99 s). **Remote CI (2026-11-03):** on PR #2 head commit `bee72e8359999b08b6629789e8e4ad3c5120e7a1`, GitHub Actions passed on Ubuntu 24.04 and Windows Server 2022 (Visual Studio 2022 / MSVC): all 48 CTest tests passed on both platforms. The React Companion Build also passed.
 
 ## Monte Carlo results
 
@@ -239,5 +239,5 @@ Centroid TRE histogram for N = 6 and FLE 0.25 mm, with p50, p95, and p99 from th
 - FLE is isotropic and applied to one cloud. Fitzpatrick's expression is a small-noise approximation; this run's largest absolute relative TRE² gap was the printed `0.02578169`.
 - FRE on the fiducials is not a substitute for TRE. The study reports both.
 - `results.json` and `points.json` are written with nlohmann/json 3.11.3. The Monte Carlo program parses `--trials`, `--seed`, and `--output` with CLI11 2.4.2.
-- GCC builds with `-Wall -Wextra -Wpedantic -Werror`. The MSVC flags stay `/W4 /permissive-` without `/WX`, because that combination was not compiled here.
-- Remote GitHub Actions status for this branch: —.
+- GCC builds with `-Wall -Wextra -Wpedantic -Werror`. The MSVC CI build uses `/W4 /permissive-` without `/WX`; that configuration was compiled and tested by GitHub Actions on Windows.
+- Remote GitHub Actions status for PR #2 head `bee72e8` (2026-11-03): C++ CI passed on Ubuntu 24.04 and Windows Server 2022; React Companion Build passed.
