@@ -117,7 +117,7 @@ Release `ctest` on this tree reported:
 Total Test time (real) =   0.09 sec
 ```
 
-The full log is [`results/ctest_release.txt`](results/ctest_release.txt). A Debug Ninja build with `-fsanitize=address,undefined` also reported `100% tests passed, 0 tests failed out of 48` (total test time 0.99 s). **Remote CI (2026-11-03):** on PR #2 head commit `bee72e8359999b08b6629789e8e4ad3c5120e7a1`, GitHub Actions passed on Ubuntu 24.04 and Windows Server 2022 (Visual Studio 2022 / MSVC): all 48 CTest tests passed on both platforms. The React Companion Build also passed.
+The full log is [`results/ctest_release.txt`](results/ctest_release.txt). A Debug Ninja build with `-fsanitize=address,undefined` also reported `100% tests passed, 0 tests failed out of 48` (total test time 0.99 s). **Remote CI (2026-11-03):** on PR #2 head commit `e435302bda011b02faa9836bce996512d94d1212`, GitHub Actions passed on Ubuntu 24.04 and Windows Server 2022 (Visual Studio 2022 / MSVC): all 48 CTest tests passed on both platforms. The React Companion Build also passed.
 
 ## Monte Carlo results
 
