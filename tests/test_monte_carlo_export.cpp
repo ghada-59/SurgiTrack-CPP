@@ -52,12 +52,12 @@ TEST(MonteCarloExportTest, WritesJsonCsvAndPoints) {
     };
 
     const std::string results = read_all(directory / "results.json");
-    EXPECT_NE(results.find("\\"version\\": \\"1.0\\""), std::string::npos);
-    EXPECT_NE(results.find("\\"units\\": \\"mm\\""), std::string::npos);
-    EXPECT_NE(results.find("\\"clinical\\": false"), std::string::npos);
-    EXPECT_NE(results.find("\\"trials_per_configuration\\": 3"), std::string::npos);
-    EXPECT_NE(results.find("\\"p5_tre_mm\\""), std::string::npos);
-    EXPECT_NE(results.find("\\"p95_tre_mm\\""), std::string::npos);
+    EXPECT_NE(results.find("\"version\": \"1.0\""), std::string::npos);
+    EXPECT_NE(results.find("\"units\": \"mm\""), std::string::npos);
+    EXPECT_NE(results.find("\"clinical\": false"), std::string::npos);
+    EXPECT_NE(results.find("\"trials_per_configuration\": 3"), std::string::npos);
+    EXPECT_NE(results.find("\"p5_tre_mm\""), std::string::npos);
+    EXPECT_NE(results.find("\"p95_tre_mm\""), std::string::npos);
 
     {
         std::ifstream csv(directory / "mc.csv");
@@ -77,9 +77,9 @@ TEST(MonteCarloExportTest, WritesJsonCsvAndPoints) {
     }  // Close mc.csv before TemporaryDirectoryCleanup removes the directory.
 
     const std::string points = read_all(directory / "points.json");
-    EXPECT_NE(points.find("\\"units\\": \\"mm\\""), std::string::npos);
-    EXPECT_NE(points.find("\\"moving_mm\\""), std::string::npos);
-    EXPECT_NE(points.find("\\"registered_mm\\""), std::string::npos);
+    EXPECT_NE(points.find("\"units\": \"mm\""), std::string::npos);
+    EXPECT_NE(points.find("\"moving_mm\""), std::string::npos);
+    EXPECT_NE(points.find("\"registered_mm\""), std::string::npos);
 
     EXPECT_TRUE(std::filesystem::exists(directory / "tre_vs_distance.svg"));
     EXPECT_TRUE(
