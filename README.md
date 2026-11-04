@@ -117,7 +117,23 @@ Release `ctest` on this tree reported:
 Total Test time (real) =   0.09 sec
 ```
 
-The full log is [`results/ctest_release.txt`](results/ctest_release.txt). A Debug Ninja build with `-fsanitize=address,undefined` also reported `100% tests passed, 0 tests failed out of 48` (total test time 0.99 s). **Remote CI (2026-11-03):** the code/test state in PR #2 passed on Ubuntu 24.04 and Windows Server 2022 (Visual Studio 2022 / MSVC): all 48 CTest tests passed on both platforms. The React Companion Build also passed. This was verified on commits `bee72e8` and `e435302`. Subsequent commits on this branch only clarify this README's CI wording; they do not change the C++ source, tests, or recorded Monte Carlo results.
+The full log is [`results/ctest_release.txt`](results/ctest_release.txt). A Debug Ninja build with `-fsanitize=address,undefined` also reported `100% tests passed, 0 tests failed out of 48` (total test time 0.99 s).
+
+**GitHub Actions on the merged `main` commit `f856bb6f82` (2026-11-03):** [C++ CI](https://github.com/ghada-59/SurgiTrack-CPP/actions/runs/41725494287) and [React Companion Build](https://github.com/ghada-59/SurgiTrack-CPP/actions/runs/41725494355) both completed successfully. The C++ workflow covers Ubuntu 24.04 and Windows Server 2022 / Visual Studio 2022 (MSVC); the CI configuration ran the 48 CTest cases on both platforms. These are CI runner results, not a claim that MSVC is installed on the author's local machine.
+
+### Windows build (Visual Studio 2022 + VS Code)
+
+Install Visual Studio 2022 with the **Desktop development with C++** workload, CMake tools and a Windows 10/11 SDK. Open the repository folder in VS Code and use a terminal at the repository root:
+
+```powershell
+cmake -S . -B build -G "Visual Studio 17 2022" -A x64
+cmake --build build --config Release --parallel
+ctest --test-dir build --output-on-failure -C Release
+.\build\Release\SurgiTrackApp.exe
+.\build\Release\SurgiTrackMonteCarlo.exe --trials 10000 --seed 20261102 --output results
+```
+
+The Visual Studio generator places the executables under `build\\Release\\`. The Monte Carlo command rewrites files in `results/`; keep a backup or choose a separate output directory when you want to preserve the committed 10,000-trial study. The Windows commands above are documented for reproducibility; they were not run on the author's local Windows machine in this session.
 
 ## Monte Carlo results
 
